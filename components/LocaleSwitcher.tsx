@@ -37,9 +37,7 @@ export default function LocaleSwitcher() {
   const switchLocale = (locale: string) => {
     document.cookie = `${LOCALE_COOKIE_KEY}=${locale}; path=/; max-age=31536000`; // 1 year
     setCurrentLocale(locale);
-
-    const search = searchParams ? `?${searchParams.toString()}` : '';
-    router.push(`${pathname ?? '/'}${search}`, { locale });
+    router.refresh();
   };
 
   return (
