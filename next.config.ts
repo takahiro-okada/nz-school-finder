@@ -7,7 +7,15 @@ const withNextIntl = createNextIntlPlugin({
 } as any);
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    serverComponentsExternalPackages: [],
+  },
+  webpack(config) {
+    if (config.resolve?.extensions && !config.resolve.extensions.includes('.json')) {
+      config.resolve.extensions.push('.json');
+    }
+    return config;
+  },
 };
 
 export default withNextIntl(nextConfig);

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import 'leaflet/dist/leaflet.css';
 import * as L from 'leaflet';
-import { MapContainer, Marker, TileLayer, useMap } from 'react-leaflet';
+import { GeoJSON, MapContainer, Marker, TileLayer, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import LocaleSwitcher from '../components/LocaleSwitcher';
 
@@ -46,6 +46,15 @@ function formatValue(value: unknown) {
   return Number.isFinite(numberValue) ? numberValue : 0;
 }
 
+const fetchSchoolZone = async (schoolId: number) => {
+  const res = await fetch(`/api/school-zone?school=${encodeURIComponent(String(schoolId))}`);
+  if (!res.ok) {
+    throw new Error('School zone fetch failed');
+  }
+  const data = await res.json();
+  return Array.isArray(data?.schoolZones) ? data.schoolZones : [];
+};
+
 function MapZoomHandler({ onZoomChange }: { onZoomChange: (zoom: number) => void }) {
   const map = useMap();
 
@@ -84,6 +93,8 @@ export default function SchoolMapClient() {
   const [schools, setSchools] = useState<any[]>([]);
   const [selectedSchool, setSelectedSchool] = useState<any>(null);
   const [selectedType, setSelectedType] = useState<string>('All');
+  const [boundaryData, setBoundaryData] = useState<any>(null);
+  const [boundaryFound, setBoundaryFound] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
@@ -153,6 +164,48 @@ export default function SchoolMapClient() {
     loadSchools();
     return () => controller.abort();
   }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    let isCurrent = true;
+
+    const schoolId = Number(selected?.School_Id ?? selected?.SchoolId ?? selected?.SchoolID);
+    if (!schoolId) {
+      setBoundaryData(null);
+      setBoundaryFound(selected ? false : null);
+      return;
+    }
+
+    const fetchBoundary = async () => {
+      setBoundaryData(null);
+      setBoundaryFound(null);
+
+      try {
+        const schoolZones = await fetchSchoolZone(schoolId);
+        if (!isCurrent) return;
+
+        if (schoolZones.length > 0) {
+          setBoundaryData(schoolZones);
+          setBoundaryFound(true);
+        } else {
+          setBoundaryData(null);
+          setBoundaryFound(false);
+        }
+      } catch (fetchError) {
+        if ((fetchError as any)?.name !== 'AbortError') {
+          setBoundaryData(null);
+          setBoundaryFound(false);
+        }
+      }
+    };
+
+    fetchBoundary();
+
+    return () => {
+      isCurrent = false;
+      controller.abort();
+    };
+  }, [selected]);
 
   const markers = useMemo(
     () =>
@@ -264,6 +317,17 @@ export default function SchoolMapClient() {
               />
             ))}
           </MarkerClusterGroup>
+          {boundaryData ? (
+            <GeoJSON
+              data={boundaryData}
+              pathOptions={{
+                fillColor: '#3b82f6',
+                fillOpacity: 0.15,
+                color: '#2563eb',
+                weight: 2,
+              }}
+            />
+          ) : null}
         </MapContainer>
       </section>
 
@@ -272,7 +336,24 @@ export default function SchoolMapClient() {
           <div className="mb-4 flex items-center justify-between gap-4">
             <div>
               <p className="text-sm uppercase tracking-[0.24em] text-slate-500">{t('school.type')}</p>
-              <h2 className="text-2xl font-semibold text-slate-950">{selected ? selected.Org_Name : t('map.clickPrompt')}</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-2xl font-semibold text-slate-950">{selected ? selected.Org_Name : t('map.clickPrompt')}</h2>
+                {selected ? (
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    boundaryFound === true
+                      ? 'bg-sky-100 text-sky-800 border border-sky-200'
+                      : boundaryFound === false
+                      ? 'bg-rose-100 text-rose-800 border border-rose-200'
+                      : 'bg-slate-100 text-slate-700 border border-slate-200'
+                  }`}>
+                    {boundaryFound === true
+                      ? '学区あり'
+                      : boundaryFound === false
+                      ? '学区データなし'
+                      : '学区確認中'}
+                  </span>
+                ) : null}
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <LocaleSwitcher />

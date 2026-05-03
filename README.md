@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NZ School Finder — Portfolio
 
-## Getting Started
+## Project Overview
 
-First, run the development server:
+A personal web application that improves upon the UI/UX of New Zealand's official school search service (educationcounts.govt.nz), provided by the Ministry of Education. The app allows users to visually explore over 2,500 schools nationwide on an interactive map.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+**GitHub:** [nz-school-finder](https://github.com/your-username/nz-school-finder)
+**Demo:** (add after deployment)
+
+---
+
+## Problem Statement
+
+The official site already provides a map view and enrolment zone boundaries, but ethnicity data required navigating to a separate page, making school-to-school comparison cumbersome. The overall UI also felt dated.
+
+This app improves the experience in the following ways:
+
+- **Ethnicity data on the same screen** — breakdown by headcount and percentage shown directly on the map panel, no page navigation required
+- **Map and school details side by side** — select a school on the map and instantly see full details including ethnicity composition
+- **English / Japanese language switching** — making the tool accessible to NZ's international community
+- **Modernised UI** — cleaner layout and faster interactions
+
+---
+
+## Tech Stack
+
+| Category | Technology | Reason |
+|----------|------------|--------|
+| Framework | Next.js 15 (App Router) | Full-stack with API Routes, no separate backend needed |
+| Language | TypeScript | Type-safe data handling |
+| Styling | Tailwind CSS | Rapid UI development |
+| Map | Leaflet / react-leaflet | Open-source, free, and feature-rich |
+| Clustering | react-leaflet-cluster | Efficiently renders 2,500+ markers |
+| i18n | next-intl | English / Japanese language switching |
+| Data Source | data.govt.nz API | NZ Ministry of Education public API |
+| Zone Data | MoE MapInfo → GeoJSON conversion | Official data converted and served locally |
+
+---
+
+## Architecture
+
+```
+Browser (React + Leaflet)
+    ↓
+Next.js API Routes (/app/api/)
+    ├── /api/schools/all   → Proxies data.govt.nz API (2,576 schools total)
+    └── /api/school-zone   → Serves enrolment zone data from local GeoJSON
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+A full-stack architecture where Next.js API Routes handle all server-side logic, eliminating the need for a separate backend.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Key Technical Challenges & Solutions
 
-## Learn More
+### 1. Fetching All Records Efficiently
+The data.govt.nz API has a limit of 1,000 records per request. Solved by using `Promise.all` to fire 3 parallel requests and merge the results, fetching all 2,576 schools efficiently.
 
-To learn more about Next.js, take a look at the following resources:
+```typescript
+const requests = Array.from({ length: Math.ceil(total / 1000) }, (_, i) =>
+  fetch(`...&limit=1000&offset=${i * 1000}`)
+)
+const results = await Promise.all(requests)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 2. Converting and Compressing Zone Data
+The Ministry of Education's enrolment zone data was only available in MapInfo format (.TAB). Converted to GeoJSON using `ogr2ogr`, then reduced the file size from 78MB to 14.8MB by simplifying coordinates with Shapely (`simplify(0.0001)`). Restructured into a SchoolID-keyed dictionary for O(1) lookups.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 3. Solving CORS Issues
+Direct browser requests to educationcounts.govt.nz were blocked by CORS policy. Resolved by routing requests through a Next.js API Route acting as a server-side proxy.
 
-## Deploy on Vercel
+### 4. Map Performance with Clustering
+Rendering 2,500+ markers naively caused performance issues. Used `react-leaflet-cluster` with `chunkedLoading: true` for incremental rendering. Implemented zoom-level-based display switching: clusters → individual markers → school name labels.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 5. Cookie-based i18n
+Implemented `next-intl` using a cookie-based locale strategy, avoiding URL locale prefixes (e.g. `/en/...`) to keep clean URLs.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Planned Features
+
+- Search schools by current location (geolocation)
+- Filter by Decile range and ethnicity percentage
+- Deploy to Vercel
+- School reviews / comments (Supabase integration)
+
+---
+
+## What I Learned
+
+- Handling real-world data access challenges: API rate limits, CORS, and Cloudflare bot protection
+- Working with GIS data formats (MapInfo / GeoJSON) and coordinate systems (EPSG:2193 → EPSG:4326)
+- Full-stack architecture with Next.js App Router
+- UX design for efficiently displaying large datasets on a map
