@@ -1,0 +1,29 @@
+{
+  "map": {
+    "title": "NZ School Finder",
+    "subtitle": "Click a marker to view school details",
+    "clickPrompt": "Click a marker on the map",
+    "totalLocations": "{count} locations",
+    "loading": "Loading..."
+  },
+  "school": {
+    "type": "Type / Authority",
+    "address": "Address",
+    "decile": "Decile (EQi Index)",
+    "totalStudents": "Total students",
+    "nationality": "Nationality",
+    "nationalitySubtitle": "Number and percentage by ethnicity",
+    "total": "Total {count} students",
+    "viewSite": "View school website →",
+    "viewYearData": "View year level data →"
+  },
+  "ethnicity": {
+    "European": "European",
+    "Māori": "Māori",
+    "Pacific": "Pacific",
+    "Asian": "Asian",
+    "MELAA": "MELAA",
+    "Other": "Other",
+    "International": "International"
+  }
+}
