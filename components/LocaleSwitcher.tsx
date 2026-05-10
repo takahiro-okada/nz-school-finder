@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 
 const LOCALE_COOKIE_KEY = 'locale';
@@ -19,20 +19,10 @@ const getLocaleFromCookie = () => {
 
 export default function LocaleSwitcher() {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const nextIntlLocale = useLocale();
   const [currentLocale, setCurrentLocale] = useState<string>(() => {
     return getLocaleFromCookie() ?? nextIntlLocale ?? 'en';
   });
-
-  useEffect(() => {
-    const cookieLocale = getLocaleFromCookie();
-
-    if (cookieLocale && cookieLocale !== currentLocale) {
-      setCurrentLocale(cookieLocale);
-    }
-  }, [currentLocale, nextIntlLocale]);
 
   const switchLocale = (locale: string) => {
     document.cookie = `${LOCALE_COOKIE_KEY}=${locale}; path=/; max-age=31536000`; // 1 year
