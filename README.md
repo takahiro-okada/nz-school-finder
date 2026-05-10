@@ -1,94 +1,191 @@
-# NZ School Finder — Portfolio
+# NZ School Finder
 
-## Project Overview
+An interactive school search app for New Zealand. It helps users explore schools, enrolment zones, school type filters, ethnicity breakdowns, and bilingual English/Japanese UI from a single map-focused interface.
 
-A personal web application that improves upon the UI/UX of New Zealand's official school search service (educationcounts.govt.nz), provided by the Ministry of Education. The app allows users to visually explore over 2,500 schools nationwide on an interactive map.
+This project is designed as a portfolio piece for New Zealand-based software engineering roles. It demonstrates full-stack Next.js development, real public data integration, map UI implementation, responsive design, and pragmatic handling of GIS-style data.
 
-**GitHub:** [nz-school-finder](https://github.com/your-username/nz-school-finder)
-**Demo:** (add after deployment)
+| Link | Status |
+| --- | --- |
+| Live demo | Add after deployment |
+| GitHub | `https://github.com/your-username/nz-school-finder` |
+| Data source | New Zealand public school data via data.govt.nz / Ministry of Education |
 
----
+## Screenshots
 
-## Problem Statement
+Replace the placeholder image paths after adding screenshots.
 
-The official site already provides a map view and enrolment zone boundaries, but ethnicity data required navigating to a separate page, making school-to-school comparison cumbersome. The overall UI also felt dated.
+| View | Screenshot | Notes |
+| --- | --- | --- |
+| Desktop map and details | `public/screenshots/desktop-map.png` | Shows the main map, filters, marker clusters, and school details side panel. |
+| Mobile map | `public/screenshots/mobile-map.png` | Shows the compact responsive map controls and bottom details sheet. |
+| School zone search | `public/screenshots/address-search.png` | Shows address lookup and matching schools within an enrolment zone. |
+| Japanese UI | `public/screenshots/japanese-ui.png` | Shows bilingual support for Japanese-speaking users. |
 
-This app improves the experience in the following ways:
+Suggested markdown once screenshots are added:
 
-- **Ethnicity data on the same screen** — breakdown by headcount and percentage shown directly on the map panel, no page navigation required
-- **Map and school details side by side** — select a school on the map and instantly see full details including ethnicity composition
-- **English / Japanese language switching** — making the tool accessible to NZ's international community
-- **Modernised UI** — cleaner layout and faster interactions
+```md
+| Desktop | Mobile |
+| --- | --- |
+| ![Desktop map](public/screenshots/desktop-map.png) | ![Mobile map](public/screenshots/mobile-map.png) |
+```
 
----
+## Problem
+
+New Zealand school information is publicly available, but comparing schools can involve jumping between map views, school profile pages, zone boundaries, and demographic data pages. This app brings the key discovery workflow into one interface:
+
+- Find schools visually on a map
+- Filter by school type
+- Search a New Zealand address and check matching school zones
+- View school details without leaving the map
+- Compare ethnicity composition with headcount and percentage
+- Switch between English and Japanese
+
+## Features
+
+| Feature | Description |
+| --- | --- |
+| Interactive map | Leaflet map with OpenStreetMap and satellite tile layers. |
+| Marker clustering | Handles 2,500+ school markers with clustering and chunked loading. |
+| School type filter | Filters primary, intermediate, secondary, composite, and special schools. |
+| Address search | Geocodes a NZ address and finds schools whose zone contains the address point. |
+| Enrolment zones | Displays school zone boundaries from local GeoJSON data. |
+| School details panel | Shows school type, city, authority, roll size, EQI/decile-like value, and ethnicity breakdown. |
+| Responsive layout | Desktop uses a side panel; mobile keeps the map primary with a compact bottom sheet. |
+| i18n | English/Japanese language switching via `next-intl`. |
 
 ## Tech Stack
 
-| Category | Technology | Reason |
-|----------|------------|--------|
-| Framework | Next.js 15 (App Router) | Full-stack with API Routes, no separate backend needed |
-| Language | TypeScript | Type-safe data handling |
-| Styling | Tailwind CSS | Rapid UI development |
-| Map | Leaflet / react-leaflet | Open-source, free, and feature-rich |
-| Clustering | react-leaflet-cluster | Efficiently renders 2,500+ markers |
-| i18n | next-intl | English / Japanese language switching |
-| Data Source | data.govt.nz API | NZ Ministry of Education public API |
-| Zone Data | MoE MapInfo → GeoJSON conversion | Official data converted and served locally |
-
----
+| Area | Technology | Why |
+| --- | --- | --- |
+| Framework | Next.js 16 App Router | Full-stack routing, server API routes, and deployment-friendly architecture. |
+| Language | TypeScript | Safer handling of external API and GeoJSON-shaped data. |
+| UI | React 19 | Component-based interactive UI. |
+| Styling | Tailwind CSS 4 | Fast responsive styling without a separate design system. |
+| Map | Leaflet / React Leaflet | Mature open-source web mapping stack. |
+| Marker clustering | react-leaflet-cluster | Keeps thousands of school markers usable. |
+| Geospatial logic | Turf.js | Point-in-polygon checks for address-to-zone matching. |
+| i18n | next-intl | Simple bilingual support with message files. |
 
 ## Architecture
 
-```
-Browser (React + Leaflet)
-    ↓
-Next.js API Routes (/app/api/)
-    ├── /api/schools/all   → Proxies data.govt.nz API (2,576 schools total)
-    └── /api/school-zone   → Serves enrolment zone data from local GeoJSON
-```
-
-A full-stack architecture where Next.js API Routes handle all server-side logic, eliminating the need for a separate backend.
-
----
-
-## Key Technical Challenges & Solutions
-
-### 1. Fetching All Records Efficiently
-The data.govt.nz API has a limit of 1,000 records per request. Solved by using `Promise.all` to fire 3 parallel requests and merge the results, fetching all 2,576 schools efficiently.
-
-```typescript
-const requests = Array.from({ length: Math.ceil(total / 1000) }, (_, i) =>
-  fetch(`...&limit=1000&offset=${i * 1000}`)
-)
-const results = await Promise.all(requests)
+```txt
+Browser
+  React + Leaflet UI
+      |
+      | fetch
+      v
+Next.js API routes
+  /api/schools/all   -> fetches and normalises public school records
+  /api/school-zone   -> serves school enrolment zone GeoJSON by school id
+      |
+      v
+External + local data
+  data.govt.nz API
+  data/school_zones_by_id.json
 ```
 
-### 2. Converting and Compressing Zone Data
-The Ministry of Education's enrolment zone data was only available in MapInfo format (.TAB). Converted to GeoJSON using `ogr2ogr`, then reduced the file size from 78MB to 14.8MB by simplifying coordinates with Shapely (`simplify(0.0001)`). Restructured into a SchoolID-keyed dictionary for O(1) lookups.
+## Project Structure
 
-### 3. Solving CORS Issues
-Direct browser requests to educationcounts.govt.nz were blocked by CORS policy. Resolved by routing requests through a Next.js API Route acting as a server-side proxy.
+```txt
+app/
+  api/
+    school-zone/route.ts       School zone API route
+    schools/all/route.ts       Public school data proxy route
+  school-map-client.tsx        Client-side state and map composition
+components/
+  map/
+    MapControls.tsx            Search, filters, and tile controls
+    MapLegend.tsx              Map legend
+    MapViewHelpers.tsx         React Leaflet map helper components
+  school/
+    EthnicityBar.tsx           Ethnicity percentage bar
+    SchoolDetailsPanel.tsx     Selected school details UI
+lib/
+  schools/
+    constants.ts               Map defaults, school type config, tile layers
+    types.ts                   Shared school and GeoJSON types
+    utils.ts                   School formatting, geocoding, zone lookup helpers
+messages/
+  en.json / ja.json            Translation files
+data/
+  school_zones_by_id.json      Local zone data keyed by school id
+```
 
-### 4. Map Performance with Clustering
-Rendering 2,500+ markers naively caused performance issues. Used `react-leaflet-cluster` with `chunkedLoading: true` for incremental rendering. Implemented zoom-level-based display switching: clusters → individual markers → school name labels.
+## Notable Implementation Details
 
-### 5. Cookie-based i18n
-Implemented `next-intl` using a cookie-based locale strategy, avoiding URL locale prefixes (e.g. `/en/...`) to keep clean URLs.
+| Challenge | Solution |
+| --- | --- |
+| External API pagination | Fetches pages from the public data API and merges the records server-side. |
+| CORS and data normalisation | Uses Next.js API routes so the browser only talks to this app. |
+| Large marker count | Uses marker clustering plus zoom-based labels to keep the map responsive. |
+| School zone matching | Converts address search results to a point and checks that point against GeoJSON polygons with Turf.js. |
+| Mobile map usability | Keeps controls compact and avoids modal-first interactions so the map remains visible. |
+| Bilingual UX | Keeps translated labels in message files and switches locale with a cookie-backed control. |
 
----
+## Getting Started
 
-## Planned Features
+### Requirements
 
-- Search schools by current location (geolocation)
-- Filter by Decile range and ethnicity percentage
-- Deploy to Vercel
-- School reviews / comments (Supabase integration)
+- Node.js 20+
+- npm
 
----
+### Install
 
-## What I Learned
+```bash
+npm install
+```
 
-- Handling real-world data access challenges: API rate limits, CORS, and Cloudflare bot protection
-- Working with GIS data formats (MapInfo / GeoJSON) and coordinate systems (EPSG:2193 → EPSG:4326)
-- Full-stack architecture with Next.js App Router
-- UX design for efficiently displaying large datasets on a map
+### Development
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:3000`.
+
+### Quality Checks
+
+```bash
+npm run lint
+npm run build
+```
+
+## Current Status
+
+| Area | Status |
+| --- | --- |
+| Core map experience | Done |
+| School filtering | Done |
+| Address-to-zone search | Done |
+| English/Japanese UI | Done |
+| Responsive layout | Done |
+| Code organisation | In progress |
+| Automated tests | Planned |
+| CI/CD | Planned |
+| Production deployment | Planned |
+
+## Portfolio Roadmap
+
+| Priority | Task | Why it matters |
+| --- | --- | --- |
+| High | Add live deployment | Recruiters and hiring managers can try the app immediately. |
+| High | Add unit tests for `lib/schools` | Demonstrates confidence around core data and geospatial helpers. |
+| High | Add GitHub Actions CI | Shows professional workflow: lint, build, and test on every PR. |
+| Medium | Add component tests for school details and filters | Proves UI behaviour around the main user workflows. |
+| Medium | Add Playwright smoke tests | Verifies the map page loads and key controls are usable. |
+| Medium | Add Storybook for reusable UI pieces | Useful for documenting `SchoolDetailsPanel`, `EthnicityBar`, and filters. |
+| Low | Add richer filters | EQI/decile range, city/region, roll size, and ethnicity percentage. |
+| Low | Add saved/shareable map state | Makes search results easier to share. |
+
+## What This Project Demonstrates
+
+- Building a full-stack application with Next.js App Router
+- Integrating public sector data into a usable product experience
+- Working with maps, marker clustering, and GeoJSON boundaries
+- Designing responsive UI for dense geospatial data
+- Writing maintainable TypeScript around loosely typed external data
+- Preparing a codebase for tests, CI, deployment, and portfolio review
+
+## Notes
+
+This is an independent portfolio project and is not affiliated with the New Zealand Ministry of Education. Public school data and zone information should be verified against official sources before being used for enrolment decisions.

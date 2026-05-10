@@ -6,7 +6,7 @@ const SchoolMapClient = dynamic(() => import('./school-map-client'), { ssr: fals
 
 export default function Home() {
   return (
-    <main style={{ height: '100vh', margin: 0, padding: 0 }}>
+    <main className="h-dvh overflow-hidden">
       <SchoolMapClient />
     </main>
   );
