@@ -146,6 +146,19 @@ Open `http://localhost:3000`.
 ### Quality Checks
 
 ```bash
+npm run verify
+```
+
+For a faster local loop while editing:
+
+```bash
+npm run verify:quick
+```
+
+Individual checks:
+
+```bash
+npm run typecheck
 npm run lint
 npm run build
 ```
