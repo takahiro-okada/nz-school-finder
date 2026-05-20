@@ -59,6 +59,6 @@ When extending coverage, prefer this order:
 1. More unit tests for `lib/schools` formatting, filtering, and zone helpers.
 2. Component-level tests for filters, details panels, and bilingual labels.
 3. Playwright smoke tests for the main map page, school search, and language switching.
-4. CI that runs `npm run verify` on pull requests.
+4. Keep GitHub Actions green. The `Verify` workflow runs `npm run verify` on pull requests and pushes to `main`.
 
 For AI-friendly tasks, prefer issues that include a failing test or a precise command/output expectation.

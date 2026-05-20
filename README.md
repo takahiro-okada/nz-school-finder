@@ -175,8 +175,8 @@ npm run build
 | English/Japanese UI | Done |
 | Responsive layout | Done |
 | Code organisation | In progress |
-| Automated tests | Planned |
-| CI/CD | Planned |
+| Automated tests | Started |
+| CI/CD | Started |
 | Production deployment | Planned |
 
 ## Portfolio Roadmap
