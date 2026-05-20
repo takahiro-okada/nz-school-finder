@@ -62,3 +62,4 @@ When extending coverage, prefer this order:
 4. Keep GitHub Actions green. The `Verify` workflow runs `npm run verify` on pull requests and pushes to `main`.
 
 For AI-friendly tasks, prefer issues that include a failing test or a precise command/output expectation.
+When creating new implementation issues, use the `AI-ready task` issue template so goals, acceptance criteria, verification, and scope boundaries are explicit.
