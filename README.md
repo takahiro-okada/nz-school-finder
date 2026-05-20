@@ -158,6 +158,8 @@ npm run verify:quick
 Individual checks:
 
 ```bash
+npm run test
+npm run test:watch
 npm run typecheck
 npm run lint
 npm run build
