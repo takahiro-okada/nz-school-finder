@@ -51,7 +51,10 @@ export const findSchoolsInZoneWithZones = (
   for (const [schoolId, zones] of Object.entries(zonesBySchoolId)) {
     if (Array.isArray(zones)) {
       for (const zone of zones) {
-        if (zone.geometry && zone.geometry.type === 'Polygon') {
+        if (
+          zone.geometry &&
+          (zone.geometry.type === 'Polygon' || zone.geometry.type === 'MultiPolygon')
+        ) {
           try {
             if (booleanPointInPolygon(searchPoint, zone)) {
               const school = schools.find((s) =>
