@@ -1,0 +1,66 @@
+name: AI-ready task
+description: Define a scoped task with clear acceptance criteria and verification steps.
+title: "[Task]: "
+labels:
+  - ai-ready
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for tasks that should be safe for AI-assisted implementation.
+        Prefer concrete expected behavior, fixture data, or a failing test when possible.
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What should change for the user or developer?
+      placeholder: "Example: Users can filter schools by roll size without changing the selected map layer."
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Relevant files, product constraints, data quirks, or prior decisions.
+      placeholder: "Relevant files: app/school-map-client.tsx, lib/schools/utils.ts"
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: List observable outcomes. Include edge cases where useful.
+      placeholder: |
+        - Filtering by minimum roll excludes schools below that number.
+        - Empty filter values do not exclude schools.
+        - English and Japanese labels both exist.
+    validations:
+      required: true
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification
+      description: Commands or checks that should pass before the task is done.
+      value: |
+        - [ ] npm run verify:quick
+        - [ ] npm run verify
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope Boundaries
+      description: What should not be changed?
+      placeholder: "Example: Do not introduce a new UI library. Do not edit data/school_zones_by_id.json."
+
+  - type: textarea
+    id: implementation_notes
+    attributes:
+      label: Implementation Notes
+      description: Optional hints, suggested files, or testing ideas.
+      placeholder: "A unit test under tests/unit is preferred if the change touches lib/schools."
