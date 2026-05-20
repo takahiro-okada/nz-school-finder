@@ -1,5 +1,8 @@
 # NZ School Finder
 
+[![Verify](https://github.com/takahiro-okada/nz-school-finder/actions/workflows/verify.yml/badge.svg)](https://github.com/takahiro-okada/nz-school-finder/actions/workflows/verify.yml)
+[![E2E Smoke](https://github.com/takahiro-okada/nz-school-finder/actions/workflows/e2e-smoke.yml/badge.svg)](https://github.com/takahiro-okada/nz-school-finder/actions/workflows/e2e-smoke.yml)
+
 An interactive school search app for New Zealand. It helps users explore schools, enrolment zones, school type filters, ethnicity breakdowns, and bilingual English/Japanese UI from a single map-focused interface.
 
 This project is designed as a portfolio piece for New Zealand-based software engineering roles. It demonstrates full-stack Next.js development, real public data integration, map UI implementation, responsive design, and pragmatic handling of GIS-style data.
