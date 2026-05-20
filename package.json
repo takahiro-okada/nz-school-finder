@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "verify:quick": "npm run typecheck && npm run lint",
+    "verify": "npm run verify:quick && npm run build"
   },
   "dependencies": {
     "@turf/boolean-point-in-polygon": "^7.3.5",
