@@ -39,11 +39,16 @@ export const geocode = async (address: string) => {
   return data[0] ? { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) } : null;
 };
 
-export const findSchoolsInZone = (lat: number, lng: number, schools: SchoolRecord[]) => {
+export const findSchoolsInZoneWithZones = (
+  lat: number,
+  lng: number,
+  schools: SchoolRecord[],
+  zonesBySchoolId: Record<string, ZoneFeature[]>
+) => {
   const searchPoint = point([lng, lat]);
   const matchingSchools: SchoolRecord[] = [];
 
-  for (const [schoolId, zones] of Object.entries(zonesData)) {
+  for (const [schoolId, zones] of Object.entries(zonesBySchoolId)) {
     if (Array.isArray(zones)) {
       for (const zone of zones) {
         if (zone.geometry && zone.geometry.type === 'Polygon') {
@@ -67,3 +72,6 @@ export const findSchoolsInZone = (lat: number, lng: number, schools: SchoolRecor
 
   return matchingSchools;
 };
+
+export const findSchoolsInZone = (lat: number, lng: number, schools: SchoolRecord[]) =>
+  findSchoolsInZoneWithZones(lat, lng, schools, zonesData);
