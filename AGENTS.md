@@ -28,6 +28,8 @@ npm run verify
 Individual checks:
 
 ```bash
+npm run test
+npm run test:watch
 npm run typecheck
 npm run lint
 npm run build
@@ -48,11 +50,13 @@ npm run dev
 - Preserve the map-first product experience. Avoid landing-page patterns for core app work.
 - When a change affects filters, school records, zones, or translated labels, check the relevant UI paths as well as the TypeScript/lint/build harness.
 
-## Testing Roadmap
+## Testing
 
-Automated tests are not set up yet. When adding the first test harness, prefer this order:
+Unit tests use Vitest and live under `tests/unit`. Keep tests deterministic and avoid live network calls.
 
-1. Unit tests for `lib/schools` formatting and zone helpers.
+When extending coverage, prefer this order:
+
+1. More unit tests for `lib/schools` formatting, filtering, and zone helpers.
 2. Component-level tests for filters, details panels, and bilingual labels.
 3. Playwright smoke tests for the main map page, school search, and language switching.
 4. CI that runs `npm run verify` on pull requests.
