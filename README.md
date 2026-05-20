@@ -186,6 +186,7 @@ npm run build
 | High | Add live deployment | Recruiters and hiring managers can try the app immediately. |
 | High | Add unit tests for `lib/schools` | Demonstrates confidence around core data and geospatial helpers. |
 | High | Add GitHub Actions CI | Shows professional workflow: lint, build, and test on every PR. |
+| High | Use AI-ready issue and PR templates | Makes autonomous implementation tasks scoped, reviewable, and verifiable. |
 | Medium | Add component tests for school details and filters | Proves UI behaviour around the main user workflows. |
 | Medium | Add Playwright smoke tests | Verifies the map page loads and key controls are usable. |
 | Medium | Add Storybook for reusable UI pieces | Useful for documenting `SchoolDetailsPanel`, `EthnicityBar`, and filters. |
