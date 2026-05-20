@@ -179,7 +179,7 @@ npm run build
 | Responsive layout | Done |
 | Code organisation | In progress |
 | Automated tests | Started |
-| CI/CD | Started |
+| CI/CD | Verify and E2E smoke workflows started |
 | Production deployment | Planned |
 
 ## Portfolio Roadmap

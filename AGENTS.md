@@ -64,7 +64,7 @@ When extending coverage, prefer this order:
 1. More unit tests for `lib/schools` formatting, filtering, and zone helpers.
 2. Component-level tests for filters, details panels, and bilingual labels.
 3. More Playwright smoke tests for the main map page, school search, and language switching.
-4. Keep GitHub Actions green. The `Verify` workflow runs `npm run verify` on pull requests and pushes to `main`.
+4. Keep GitHub Actions green. The `Verify` workflow runs `npm run verify`; the `E2E Smoke` workflow runs `npm run test:e2e` on pull requests and can also be started manually.
 
 For AI-friendly tasks, prefer issues that include a failing test or a precise command/output expectation.
 When creating new implementation issues, use the `AI-ready task` issue template so goals, acceptance criteria, verification, and scope boundaries are explicit.
