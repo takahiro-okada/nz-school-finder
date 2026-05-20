@@ -6,6 +6,31 @@
     "totalLocations": "{count} locations",
     "loading": "Loading..."
   },
+  "search": {
+    "title": "Address Search",
+    "placeholder": "Enter address in New Zealand",
+    "clear": "X",
+    "search": "Search",
+    "searching": "...",
+    "results": "{count, plural, one {# school in this zone} other {# schools in this zone}}",
+    "noResults": "No school zone found for this address."
+  },
+  "filters": {
+    "type": "Filter",
+    "name": "Search school name",
+    "city": "City",
+    "authority": "Authority",
+    "allCities": "All cities",
+    "allAuthorities": "All authorities",
+    "minRoll": "Min roll",
+    "maxRoll": "Max roll",
+    "minEqi": "Min EQI",
+    "maxEqi": "Max EQI",
+    "clear": "Clear filters",
+    "more": "More",
+    "less": "Less",
+    "active": "{count} active"
+  },
   "school": {
     "type": "Type / Authority",
     "address": "Address",
@@ -16,6 +41,17 @@
     "total": "Total {count} students",
     "viewSite": "View school website →",
     "viewYearData": "View year level data →"
+  },
+  "compare": {
+    "title": "Compare schools",
+    "add": "Add to compare",
+    "remove": "Remove from compare",
+    "clear": "Clear",
+    "empty": "Add schools here to compare roll size, EQI, type, and location.",
+    "limit": "Compare up to 4 schools",
+    "city": "City",
+    "authority": "Authority",
+    "type": "Type"
   },
   "ethnicity": {
     "European": "European",

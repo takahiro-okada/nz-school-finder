@@ -6,6 +6,31 @@
     "totalLocations": "{count}校",
     "loading": "読み込み中..."
   },
+  "search": {
+    "title": "住所検索",
+    "placeholder": "ニュージーランドの住所を入力",
+    "clear": "X",
+    "search": "検索",
+    "searching": "...",
+    "results": "{count}校がこの学区に該当",
+    "noResults": "この住所に該当する学区が見つかりませんでした。"
+  },
+  "filters": {
+    "type": "絞り込み",
+    "name": "学校名で検索",
+    "city": "City",
+    "authority": "設置者",
+    "allCities": "すべてのCity",
+    "allAuthorities": "すべての設置者",
+    "minRoll": "生徒数 下限",
+    "maxRoll": "生徒数 上限",
+    "minEqi": "EQI 下限",
+    "maxEqi": "EQI 上限",
+    "clear": "絞り込みをクリア",
+    "more": "詳細",
+    "less": "閉じる",
+    "active": "{count}件適用中"
+  },
   "school": {
     "type": "種別・設置者",
     "address": "住所",
@@ -16,6 +41,17 @@
     "total": "合計 {count}人",
     "viewSite": "学校サイトを見る →",
     "viewYearData": "学年別データを見る →"
+  },
+  "compare": {
+    "title": "学校を比較",
+    "add": "比較に追加",
+    "remove": "比較から外す",
+    "clear": "クリア",
+    "empty": "学校を追加すると、生徒数・EQI・種別・地域を比較できます。",
+    "limit": "比較は4校までです",
+    "city": "City",
+    "authority": "設置者",
+    "type": "種別"
   },
   "ethnicity": {
     "European": "ヨーロッパ系",

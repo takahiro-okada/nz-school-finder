@@ -28,3 +28,13 @@ export type EthnicityField = {
   key: string;
   label: string;
 };
+
+export type SchoolFilters = {
+  name: string;
+  city: string;
+  authority: string;
+  minRoll: string;
+  maxRoll: string;
+  minEqi: string;
+  maxEqi: string;
+};

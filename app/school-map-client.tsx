@@ -11,7 +11,7 @@ import MapLegend from '@/components/map/MapLegend';
 import { MapController, MapZoomHandler } from '@/components/map/MapViewHelpers';
 import SchoolDetailsPanel from '@/components/school/SchoolDetailsPanel';
 import { DEFAULT_ZOOM, NZ_CENTER, SCHOOL_TYPE_GROUPS, TILE_LAYERS, TYPE_CONFIG } from '@/lib/schools/constants';
-import type { SchoolRecord, ZoneFeature } from '@/lib/schools/types';
+import type { SchoolFilters, SchoolRecord, ZoneFeature } from '@/lib/schools/types';
 import { fetchSchoolZone, findSchoolsInZone, formatValue, geocode, getSchoolId } from '@/lib/schools/utils';
 
 const iconRetinaUrl = new URL('leaflet/dist/images/marker-icon-2x.png', import.meta.url).toString();
@@ -20,24 +20,64 @@ const shadowUrl = new URL('leaflet/dist/images/marker-shadow.png', import.meta.u
 
 L.Icon.Default.mergeOptions({ iconRetinaUrl, iconUrl, shadowUrl });
 
+const DEFAULT_FILTERS: SchoolFilters = {
+  name: '',
+  city: '',
+  authority: '',
+  minRoll: '',
+  maxRoll: '',
+  minEqi: '',
+  maxEqi: '',
+};
+
+const getSearchParams = () => (
+  typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.search)
+);
+
+const getInitialSelectedType = () => {
+  const type = getSearchParams().get('type');
+  return type && SCHOOL_TYPE_GROUPS.some((group) => group.key === type) ? type : 'All';
+};
+
+const getInitialTile = () => {
+  const tile = getSearchParams().get('tile');
+  return tile && TILE_LAYERS.some((layer) => layer.key === tile) ? tile : 'standard';
+};
+
+const getInitialFilters = (): SchoolFilters => {
+  const params = getSearchParams();
+  return {
+    name: params.get('q') ?? '',
+    city: params.get('city') ?? '',
+    authority: params.get('authority') ?? '',
+    minRoll: params.get('rollMin') ?? '',
+    maxRoll: params.get('rollMax') ?? '',
+    minEqi: params.get('eqiMin') ?? '',
+    maxEqi: params.get('eqiMax') ?? '',
+  };
+};
+
 export default function SchoolMapClient() {
   const t = useTranslations();
   const tEthnicity = useTranslations('ethnicity');
 
   const [schools, setSchools] = useState<SchoolRecord[]>([]);
   const [selectedSchool, setSelectedSchool] = useState<SchoolRecord | null>(null);
-  const [selectedType, setSelectedType] = useState<string>('All');
+  const [selectedType, setSelectedType] = useState<string>(getInitialSelectedType);
+  const [filters, setFilters] = useState<SchoolFilters>(getInitialFilters);
+  const [compareIds, setCompareIds] = useState<string[]>(() => getSearchParams().get('compare')?.split(',').filter(Boolean).slice(0, 4) ?? []);
   const [boundaryData, setBoundaryData] = useState<ZoneFeature[] | null>(null);
   const [boundaryFound, setBoundaryFound] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
-  const [selectedTile, setSelectedTile] = useState<string>('standard');
-  const [searchAddress, setSearchAddress] = useState<string>('');
+  const [selectedTile, setSelectedTile] = useState<string>(getInitialTile);
+  const [searchAddress, setSearchAddress] = useState<string>(() => getSearchParams().get('address') ?? '');
   const [searchResults, setSearchResults] = useState<SchoolRecord[]>([]);
   const [searchMarker, setSearchMarker] = useState<L.LatLng | null>(null);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [pendingSelectedId] = useState<string>(() => getSearchParams().get('school') ?? '');
   const searchRef = useRef<HTMLDivElement | null>(null);
 
   const handleAddressSearch = async () => {
@@ -86,30 +126,67 @@ export default function SchoolMapClient() {
   }, []);
 
   const filteredSchools = useMemo(() => {
-    if (selectedType === 'All') {
-      return schools;
-    }
-
     const group = SCHOOL_TYPE_GROUPS.find((item) => item.key === selectedType);
-    if (!group) {
-      return schools;
-    }
+    const minRoll = parseFilterNumber(filters.minRoll);
+    const maxRoll = parseFilterNumber(filters.maxRoll);
+    const minEqi = parseFilterNumber(filters.minEqi);
+    const maxEqi = parseFilterNumber(filters.maxEqi);
+    const nameQuery = filters.name.trim().toLocaleLowerCase();
 
-    return schools.filter((school) => group.values.includes(String(school.Org_Type ?? '')));
-  }, [schools, selectedType]);
+    return schools.filter((school) => {
+      const schoolType = String(school.Org_Type ?? '');
+      const schoolName = String(school.Org_Name ?? '').toLocaleLowerCase();
+      const city = String(school.Add1_City ?? '');
+      const authority = String(school.Authority ?? '');
+      const roll = formatValue(school.Total);
+      const eqi = formatValue(school.EQi_Index);
+
+      if (group && group.key !== 'All' && !group.values.includes(schoolType)) return false;
+      if (nameQuery && !schoolName.includes(nameQuery)) return false;
+      if (filters.city && city !== filters.city) return false;
+      if (filters.authority && authority !== filters.authority) return false;
+      if (minRoll !== null && roll < minRoll) return false;
+      if (maxRoll !== null && roll > maxRoll) return false;
+      if (minEqi !== null && eqi < minEqi) return false;
+      if (maxEqi !== null && eqi > maxEqi) return false;
+
+      return true;
+    });
+  }, [schools, selectedType, filters]);
+
+  const cityOptions = useMemo(() => buildOptions(schools, 'Add1_City'), [schools]);
+  const authorityOptions = useMemo(() => buildOptions(schools, 'Authority'), [schools]);
+
+  const compareSchools = useMemo(() => {
+    const byId = new Map(schools.map((school) => [getSchoolId(school), school]));
+    return compareIds.map((id) => byId.get(id)).filter(Boolean) as SchoolRecord[];
+  }, [schools, compareIds]);
+
+  const activeFilterCount = useMemo(() => {
+    return [
+      selectedType !== 'All',
+      filters.name.trim(),
+      filters.city,
+      filters.authority,
+      filters.minRoll,
+      filters.maxRoll,
+      filters.minEqi,
+      filters.maxEqi,
+    ].filter(Boolean).length;
+  }, [filters, selectedType]);
 
   const selected = useMemo(() => {
-    if (!selectedSchool || !filteredSchools.length) {
+    const candidate = selectedSchool ?? schools.find((school) => getSchoolId(school) === pendingSelectedId) ?? null;
+
+    if (!candidate || !filteredSchools.length) {
       return null;
     }
 
-    const selectedId = selectedSchool.School_Id ?? selectedSchool.SchoolId ?? selectedSchool.SchoolID;
-    const match = filteredSchools.find((school) =>
-      (school.School_Id ?? school.SchoolId ?? school.SchoolID) === selectedId
-    );
+    const selectedId = getSchoolId(candidate);
+    const match = filteredSchools.find((school) => getSchoolId(school) === selectedId);
 
-    return match ? selectedSchool : null;
-  }, [filteredSchools, selectedSchool]);
+    return match ? candidate : null;
+  }, [filteredSchools, pendingSelectedId, schools, selectedSchool]);
 
   const selectedTileLayer = useMemo(() => {
     return TILE_LAYERS.find((layer) => layer.key === selectedTile) ?? TILE_LAYERS[0];
@@ -149,6 +226,28 @@ export default function SchoolMapClient() {
     loadSchools();
     return () => controller.abort();
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    const selectedId = selectedSchool ? getSchoolId(selectedSchool) : pendingSelectedId;
+
+    if (selectedType !== 'All') params.set('type', selectedType);
+    if (filters.name.trim()) params.set('q', filters.name.trim());
+    if (filters.city) params.set('city', filters.city);
+    if (filters.authority) params.set('authority', filters.authority);
+    if (filters.minRoll) params.set('rollMin', filters.minRoll);
+    if (filters.maxRoll) params.set('rollMax', filters.maxRoll);
+    if (filters.minEqi) params.set('eqiMin', filters.minEqi);
+    if (filters.maxEqi) params.set('eqiMax', filters.maxEqi);
+    if (selectedTile !== 'standard') params.set('tile', selectedTile);
+    if (searchAddress.trim()) params.set('address', searchAddress.trim());
+    if (selectedId) params.set('school', selectedId);
+    if (compareIds.length) params.set('compare', compareIds.join(','));
+
+    const query = params.toString();
+    const nextUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+    window.history.replaceState(null, '', nextUrl);
+  }, [compareIds, filters, pendingSelectedId, searchAddress, selectedSchool, selectedTile, selectedType]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -221,7 +320,7 @@ export default function SchoolMapClient() {
   return (
     <div className="flex h-dvh w-full flex-col overflow-hidden bg-white lg:flex-row">
       <section className="relative min-h-0 flex-1 overflow-hidden bg-white">
-        <div className="absolute left-3 right-3 top-3 z-[1000] rounded-lg bg-white/95 p-2 shadow-lg backdrop-blur-sm sm:left-4 sm:right-auto sm:w-[min(440px,calc(100vw-2rem))] sm:p-4 lg:max-h-[calc(100dvh-2rem)] lg:overflow-y-auto">
+        <div className="absolute left-3 right-3 top-3 z-[1000] rounded-lg bg-white/95 p-2 shadow-lg backdrop-blur-sm sm:left-4 sm:right-auto sm:w-[min(440px,calc(100vw-2rem))] sm:p-3 lg:max-h-[calc(100dvh-2rem)] lg:overflow-y-auto">
           <SearchPanel
             searchRef={searchRef}
             searchAddress={searchAddress}
@@ -235,6 +334,15 @@ export default function SchoolMapClient() {
               setSelectedSchool(school);
               setSearchOpen(false);
             }}
+            labels={{
+              title: t('search.title'),
+              placeholder: t('search.placeholder'),
+              clear: t('search.clear'),
+              search: t('search.search'),
+              searching: t('search.searching'),
+              results: (count) => t('search.results', { count }),
+              noResults: t('search.noResults'),
+            }}
           />
 
           <FilterPanel
@@ -243,6 +351,31 @@ export default function SchoolMapClient() {
             groups={SCHOOL_TYPE_GROUPS}
             selectedType={selectedType}
             onSelectType={setSelectedType}
+            filters={filters}
+            cityOptions={cityOptions}
+            authorityOptions={authorityOptions}
+            activeFilterCount={activeFilterCount}
+            onFiltersChange={setFilters}
+            onClearFilters={() => {
+              setSelectedType('All');
+              setFilters(DEFAULT_FILTERS);
+            }}
+            labels={{
+              type: t('filters.type'),
+              name: t('filters.name'),
+              city: t('filters.city'),
+              authority: t('filters.authority'),
+              allCities: t('filters.allCities'),
+              allAuthorities: t('filters.allAuthorities'),
+              minRoll: t('filters.minRoll'),
+              maxRoll: t('filters.maxRoll'),
+              minEqi: t('filters.minEqi'),
+              maxEqi: t('filters.maxEqi'),
+              clear: t('filters.clear'),
+              more: t('filters.more'),
+              less: t('filters.less'),
+              active: (count) => t('filters.active', { count }),
+            }}
           />
         </div>
 
@@ -291,8 +424,16 @@ export default function SchoolMapClient() {
 
       <SchoolDetailsPanel
         selected={selected}
+        compareSchools={compareSchools}
         boundaryFound={boundaryFound}
         ethnicityFields={ethnicityFields}
+        onAddCompare={(school) => {
+          const schoolId = getSchoolId(school);
+          setCompareIds((current) => current.includes(schoolId) || current.length >= 4 ? current : [...current, schoolId]);
+        }}
+        onRemoveCompare={(schoolId) => setCompareIds((current) => current.filter((id) => id !== schoolId))}
+        onSelectCompare={setSelectedSchool}
+        onClearCompare={() => setCompareIds([])}
         labels={{
           totalLocations: t('map.totalLocations', { count: filteredSchools.length }),
           clickPrompt: t('map.clickPrompt'),
@@ -302,10 +443,33 @@ export default function SchoolMapClient() {
           total: (count) => t('school.total', { count }),
           viewSite: t('school.viewSite'),
           viewYearData: t('school.viewYearData'),
+          compare: t('compare.title'),
+          addCompare: t('compare.add'),
+          removeCompare: t('compare.remove'),
+          clearCompare: t('compare.clear'),
+          compareEmpty: t('compare.empty'),
+          compareLimit: t('compare.limit'),
+          city: t('compare.city'),
+          authority: t('compare.authority'),
+          type: t('compare.type'),
         }}
       />
     </div>
   );
+}
+
+function parseFilterNumber(value: string) {
+  if (!value.trim()) return null;
+  const numberValue = Number(value);
+  return Number.isFinite(numberValue) ? numberValue : null;
+}
+
+function buildOptions(schools: SchoolRecord[], key: keyof SchoolRecord) {
+  return Array.from(new Set(
+    schools
+      .map((school) => String(school[key] ?? '').trim())
+      .filter(Boolean)
+  )).sort((a, b) => a.localeCompare(b));
 }
 
 function createSchoolIcon(school: SchoolRecord, isSelected: boolean, zoom: number) {
