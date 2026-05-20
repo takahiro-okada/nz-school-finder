@@ -59,6 +59,30 @@ describe('school zone matching', () => {
     },
   };
 
+  const multiPolygonZone: ZoneFeature = {
+    type: 'Feature',
+    properties: {},
+    geometry: {
+      type: 'MultiPolygon',
+      coordinates: [
+        [[
+          [170.0, -45.0],
+          [171.0, -45.0],
+          [171.0, -44.0],
+          [170.0, -44.0],
+          [170.0, -45.0],
+        ]],
+        [[
+          [176.0, -39.0],
+          [177.0, -39.0],
+          [177.0, -38.0],
+          [176.0, -38.0],
+          [176.0, -39.0],
+        ]],
+      ],
+    },
+  };
+
   it('returns schools whose zone contains the searched point', () => {
     const matches = findSchoolsInZoneWithZones(-36.5, 174.5, schools, {
       '101': [squareZone],
@@ -73,5 +97,13 @@ describe('school zone matching', () => {
     });
 
     expect(matches).toEqual([]);
+  });
+
+  it('matches schools inside MultiPolygon zone features', () => {
+    const matches = findSchoolsInZoneWithZones(-38.5, 176.5, schools, {
+      '202': [multiPolygonZone],
+    });
+
+    expect(matches).toEqual([{ School_Id: 202, Org_Name: 'Outside School' }]);
   });
 });
