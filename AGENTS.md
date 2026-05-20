@@ -29,6 +29,9 @@ Individual checks:
 
 ```bash
 npm run test
+npm run test:e2e
+npm run test:e2e:install
+npm run test:e2e:ui
 npm run test:watch
 npm run typecheck
 npm run lint
@@ -53,12 +56,14 @@ npm run dev
 ## Testing
 
 Unit tests use Vitest and live under `tests/unit`. Keep tests deterministic and avoid live network calls.
+E2E smoke tests use Playwright and live under `tests/e2e`. Run them before finishing UI or routing changes, but keep the main `verify` harness focused on typecheck, lint, unit tests, and build.
+Before the first local E2E run, install the browser runtime with `npm run test:e2e:install`.
 
 When extending coverage, prefer this order:
 
 1. More unit tests for `lib/schools` formatting, filtering, and zone helpers.
 2. Component-level tests for filters, details panels, and bilingual labels.
-3. Playwright smoke tests for the main map page, school search, and language switching.
+3. More Playwright smoke tests for the main map page, school search, and language switching.
 4. Keep GitHub Actions green. The `Verify` workflow runs `npm run verify` on pull requests and pushes to `main`.
 
 For AI-friendly tasks, prefer issues that include a failing test or a precise command/output expectation.

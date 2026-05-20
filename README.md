@@ -159,6 +159,9 @@ Individual checks:
 
 ```bash
 npm run test
+npm run test:e2e
+npm run test:e2e:install
+npm run test:e2e:ui
 npm run test:watch
 npm run typecheck
 npm run lint
