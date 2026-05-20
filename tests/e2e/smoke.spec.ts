@@ -18,7 +18,7 @@ test.describe('school finder smoke flow', () => {
     await page.goto('/');
 
     const addressInput = page.getByPlaceholder('Enter address in New Zealand');
-    const searchButton = page.getByRole('button', { name: 'Search' });
+    const searchButton = page.getByRole('button', { name: 'Search', exact: true });
 
     await expect(searchButton).toBeDisabled();
     await addressInput.fill('Wellington');
@@ -27,6 +27,25 @@ test.describe('school finder smoke flow', () => {
     await page.getByRole('button', { name: 'X', exact: true }).click();
     await expect(addressInput).toHaveValue('');
     await expect(searchButton).toBeDisabled();
+  });
+
+  test('updates school type and map style selections', async ({ page }) => {
+    await page.goto('/');
+
+    const allFilter = page.getByRole('button', { name: 'All', exact: true });
+    const secondaryFilter = page.getByRole('button', { name: 'Secondary', exact: true });
+    const standardStyle = page.getByRole('button', { name: 'Standard', exact: true });
+    const satelliteStyle = page.getByRole('button', { name: 'Satellite', exact: true });
+
+    await expect(allFilter).toHaveClass(/bg-slate-900/);
+    await secondaryFilter.click();
+    await expect(secondaryFilter).toHaveClass(/bg-slate-900/);
+    await expect(allFilter).not.toHaveClass(/bg-slate-900/);
+
+    await expect(standardStyle).toHaveClass(/bg-slate-900/);
+    await satelliteStyle.click();
+    await expect(satelliteStyle).toHaveClass(/bg-slate-900/);
+    await expect(standardStyle).not.toHaveClass(/bg-slate-900/);
   });
 
   test('switches between English and Japanese copy', async ({ page }) => {
