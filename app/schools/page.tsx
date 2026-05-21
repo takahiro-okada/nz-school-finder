@@ -1,14 +1,15 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import SchoolsDirectory, { type SchoolDirectoryItem } from '@/components/seo/SchoolsDirectory';
 import SeoPageShell from '@/components/seo/SeoPageShell';
 import TypeDistribution from '@/components/seo/TypeDistribution';
 import {
   getAllSchools,
-  getCitySlug,
   getLocationSummaries,
   getSchoolSlug,
   getStudentTotal,
   getTypeCounts,
+  getTypeGroupLabel,
 } from '@/lib/schools/catalog';
 import { siteUrl } from '@/lib/site';
 import { displayValue } from '@/lib/schools/utils';
@@ -25,10 +26,21 @@ export default function SchoolsPage() {
   const schools = getAllSchools();
   const locations = getLocationSummaries();
   const typeCounts = getTypeCounts(schools);
-  const featuredLocations = locations.slice(0, 12);
   const featuredSchools = [...schools]
     .sort((a, b) => Number(b.Total ?? 0) - Number(a.Total ?? 0))
-    .slice(0, 24);
+    .slice(0, 12);
+  const directoryItems: SchoolDirectoryItem[] = schools.map((school) => ({
+    slug: getSchoolSlug(school),
+    name: displayValue(school.Org_Name),
+    city: displayValue(school.Add1_City, 'New Zealand'),
+    type: displayValue(school.Org_Type),
+    typeGroup: getTypeGroupLabel(school),
+    authority: displayValue(school.Authority),
+    students: Number(school.Total ?? 0),
+    eqi: displayValue(school.EQi_Index),
+  }));
+  const cityOptions = locations.slice(0, 80).map((location) => location.city);
+  const typeOptions = typeCounts.map((item) => item.label);
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -73,8 +85,8 @@ export default function SchoolsPage() {
             <div className="h-full rounded-md bg-white/10 p-4">
               <div className="text-sm font-semibold">Automated from public school records</div>
               <div className="mt-2 text-sm text-slate-300">
-                City pages, school pages, charts, and sitemap URLs are generated from the same local
-                data snapshot used by the map.
+                Search, filters, charts, profile pages, and sitemap URLs are generated from the same
+                local data snapshot used by the map.
               </div>
             </div>
           </div>
@@ -83,45 +95,31 @@ export default function SchoolsPage() {
 
       <section className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-lg border border-slate-200 bg-white p-6">
-          <h2 className="text-xl font-bold">Largest location pages</h2>
-          <div className="mt-4 grid gap-2 sm:grid-cols-2">
-            {featuredLocations.map((location) => (
-              <Link
-                key={location.slug}
-                className="rounded-md border border-slate-200 p-3 hover:border-blue-300 hover:bg-blue-50"
-                href={`/locations/${getCitySlug(location.city)}`}
-              >
-                <div className="font-semibold text-slate-950">{location.city}</div>
-                <div className="text-sm text-slate-600">{location.count} schools</div>
-              </Link>
-            ))}
-          </div>
-        </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-6">
           <h2 className="text-xl font-bold">School type distribution</h2>
           <div className="mt-4">
             <TypeDistribution items={typeCounts} total={schools.length} />
           </div>
         </div>
-      </section>
-
-      <section className="rounded-lg border border-slate-200 bg-white p-6">
-        <h2 className="text-xl font-bold">Featured schools by roll size</h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {featuredSchools.map((school) => (
-            <Link
-              key={getSchoolSlug(school)}
-              className="rounded-md border border-slate-200 p-4 hover:border-blue-300 hover:bg-blue-50"
-              href={`/schools/${getSchoolSlug(school)}`}
-            >
-              <div className="font-semibold text-slate-950">{displayValue(school.Org_Name)}</div>
-              <div className="mt-1 text-sm text-slate-600">
-                {displayValue(school.Add1_City)} · {Number(school.Total ?? 0).toLocaleString('en-NZ')} students
-              </div>
-            </Link>
-          ))}
+        <div className="rounded-lg border border-slate-200 bg-white p-6">
+          <h2 className="text-xl font-bold">Largest school communities</h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {featuredSchools.map((school) => (
+              <Link
+                key={getSchoolSlug(school)}
+                className="rounded-md border border-slate-200 p-4 hover:border-blue-300 hover:bg-blue-50"
+                href={`/schools/${getSchoolSlug(school)}`}
+              >
+                <div className="font-semibold text-slate-950">{displayValue(school.Org_Name)}</div>
+                <div className="mt-1 text-sm text-slate-600">
+                  {displayValue(school.Add1_City)} · {Number(school.Total ?? 0).toLocaleString('en-NZ')} students
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
+
+      <SchoolsDirectory schools={directoryItems} cityOptions={cityOptions} typeOptions={typeOptions} />
     </SeoPageShell>
   );
 }

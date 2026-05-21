@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { siteUrl } from '@/lib/site';
-import { getAllSchools, getLocationSummaries, getSchoolSlug } from '@/lib/schools/catalog';
+import { getAllSchools, getSchoolSlug } from '@/lib/schools/catalog';
 
 const staticRoutes = [
   { route: '/', changeFrequency: 'weekly' as const, priority: 1 },
@@ -17,13 +17,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: 'monthly' as const,
     priority: 0.7,
   }));
-  const locationRoutes = getLocationSummaries().map((location) => ({
-    url: new URL(`/locations/${location.slug}`, siteUrl).toString(),
-    lastModified,
-    changeFrequency: 'weekly' as const,
-    priority: 0.75,
-  }));
-
   return [
     ...staticRoutes.map(({ route, changeFrequency, priority }) => ({
       url: new URL(route, siteUrl).toString(),
@@ -31,7 +24,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency,
       priority,
     })),
-    ...locationRoutes,
     ...schoolRoutes,
   ];
 }
