@@ -55,6 +55,7 @@ The app does not send typed address text to analytics.
 ```bash
 npm run verify
 npm run test:e2e
+npm run production:check -- https://schools.dev-oka.com
 ```
 
 Manual checks:

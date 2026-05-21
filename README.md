@@ -175,6 +175,7 @@ Individual checks:
 ```bash
 npm run test
 npm run test:e2e
+npm run production:check -- https://schools.dev-oka.com
 npm run test:e2e:install
 npm run test:e2e:ui
 npm run test:watch
