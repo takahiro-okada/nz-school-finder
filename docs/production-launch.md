@@ -43,6 +43,18 @@ Set these in the Vercel project before promoting the custom domain.
 
 The app does not send typed address text to analytics.
 
+### Analytics Events
+
+| Event | Trigger | Notes |
+| --- | --- | --- |
+| `address_search_started` | User submits a non-empty address search. | Sends address length only, not the address text. |
+| `address_search_completed` | Geocoding finishes. | Sends whether coordinates were found and the number of matching schools. |
+| `address_search_failed` | Geocoding throws an error. | No address text is sent. |
+| `address_search_cleared` | User clears the address search. | Useful for measuring abandoned searches. |
+| `school_selected` | User selects a school marker or zone result. | Sends selection source, school ID, and school type. |
+| `school_type_filter_changed` | User changes the school type filter. | Sends selected filter key. |
+| `map_style_changed` | User switches map style. | Sends selected map style key. |
+
 ## Search Console
 
 1. Add the `schools.dev-oka.com` URL prefix property.
