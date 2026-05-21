@@ -9,6 +9,7 @@ import { FilterPanel, MapStyleSwitcher, SearchPanel } from '@/components/map/Map
 import MapLegend from '@/components/map/MapLegend';
 import { MapController, MapZoomHandler } from '@/components/map/MapViewHelpers';
 import SchoolDetailsPanel from '@/components/school/SchoolDetailsPanel';
+import { trackEvent } from '@/lib/analytics';
 import { DEFAULT_ZOOM, NZ_CENTER, SCHOOL_TYPE_GROUPS, TILE_LAYERS, TYPE_CONFIG } from '@/lib/schools/constants';
 import type { SchoolRecord, ZoneFeature } from '@/lib/schools/types';
 import { fetchSchoolZone, findSchoolsInZone, formatValue, geocode, getSchoolId } from '@/lib/schools/utils';
@@ -64,26 +65,38 @@ export default function SchoolMapClient() {
   const searchRef = useRef<HTMLDivElement | null>(null);
 
   const handleAddressSearch = async () => {
-    if (!searchAddress.trim()) return;
+    const trimmedAddress = searchAddress.trim();
+    if (!trimmedAddress) return;
 
     setSearchLoading(true);
     setSearchResults([]);
     setSearchMarker(null);
+    trackEvent('address_search_started', { search_length: trimmedAddress.length });
 
     try {
-      const coords = await geocode(searchAddress.trim());
+      const coords = await geocode(trimmedAddress);
       if (coords) {
         const latLng = L.latLng(coords.lat, coords.lng);
+        const matches = findSchoolsInZone(coords.lat, coords.lng, schools);
         setSearchMarker(latLng);
-        setSearchResults(findSchoolsInZone(coords.lat, coords.lng, schools));
+        setSearchResults(matches);
+        trackEvent('address_search_completed', {
+          found_coordinates: true,
+          matched_schools: matches.length,
+        });
       } else {
         setSearchResults([]);
         setSearchMarker(null);
+        trackEvent('address_search_completed', {
+          found_coordinates: false,
+          matched_schools: 0,
+        });
       }
     } catch (error) {
       console.error('Geocoding error:', error);
       setSearchResults([]);
       setSearchMarker(null);
+      trackEvent('address_search_failed');
     } finally {
       setSearchLoading(false);
       setSearchOpen(true);
@@ -95,6 +108,26 @@ export default function SchoolMapClient() {
     setSearchResults([]);
     setSearchMarker(null);
     setSearchOpen(false);
+    trackEvent('address_search_cleared');
+  };
+
+  const selectSchool = (school: SchoolRecord, source: 'map_marker' | 'zone_result') => {
+    setSelectedSchool(school);
+    trackEvent('school_selected', {
+      source,
+      school_id: getSchoolId(school),
+      school_type: String(school.Org_Type ?? ''),
+    });
+  };
+
+  const selectSchoolType = (type: string) => {
+    setSelectedType(type);
+    trackEvent('school_type_filter_changed', { school_type: type });
+  };
+
+  const selectTileLayer = (tile: string) => {
+    setSelectedTile(tile);
+    trackEvent('map_style_changed', { map_style: tile });
   };
 
   useEffect(() => {
@@ -255,7 +288,7 @@ export default function SchoolMapClient() {
             onSearch={handleAddressSearch}
             onClear={clearSearch}
             onSelectSchool={(school) => {
-              setSelectedSchool(school);
+              selectSchool(school, 'zone_result');
               setSearchOpen(false);
             }}
           />
@@ -265,11 +298,11 @@ export default function SchoolMapClient() {
             subtitle={LABELS.map.subtitle}
             groups={SCHOOL_TYPE_GROUPS}
             selectedType={selectedType}
-            onSelectType={setSelectedType}
+            onSelectType={selectSchoolType}
           />
         </div>
 
-        <MapStyleSwitcher layers={TILE_LAYERS} selectedTile={selectedTile} onSelectTile={setSelectedTile} />
+        <MapStyleSwitcher layers={TILE_LAYERS} selectedTile={selectedTile} onSelectTile={selectTileLayer} />
 
         {loading && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/90 text-slate-700">
@@ -292,7 +325,7 @@ export default function SchoolMapClient() {
                 key={`${getSchoolId(school) || position.join(',')}`}
                 position={position}
                 icon={icon}
-                eventHandlers={{ click: () => setSelectedSchool(school) }}
+                eventHandlers={{ click: () => selectSchool(school, 'map_marker') }}
               />
             ))}
           </MarkerClusterGroup>

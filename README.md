@@ -139,6 +139,15 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+### Environment Variables
+
+Copy `.env.example` to `.env.local` for local configuration.
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `NEXT_PUBLIC_SITE_URL` | Recommended | Canonical public URL used for metadata. |
+| `NEXT_PUBLIC_GA_ID` | Optional | Google Analytics 4 measurement ID. Analytics is disabled when empty. |
+
 ### Data Refresh
 
 The app serves school records from `data/schools.json` so production does not depend on live public API calls at runtime.
@@ -183,7 +192,8 @@ npm run build
 | Code organisation | In progress |
 | Automated tests | Started |
 | CI/CD | Verify and E2E smoke workflows started |
-| Production deployment | Planned |
+| Production deployment | Live on Vercel |
+| Analytics | GA4-ready via `NEXT_PUBLIC_GA_ID` |
 
 ## Portfolio Roadmap
 
