@@ -47,15 +47,4 @@ test.describe('school finder smoke flow', () => {
     await expect(satelliteStyle).toHaveClass(/bg-slate-900/);
     await expect(standardStyle).not.toHaveClass(/bg-slate-900/);
   });
-
-  test('switches between English and Japanese copy', async ({ page }) => {
-    await page.goto('/');
-
-    await page.getByRole('button', { name: 'JP', exact: true }).click();
-    await expect(page.getByRole('heading', { name: 'NZ 学校検索マップ' })).toBeVisible();
-    await expect(page.getByText('地図上のマーカーをクリックしてください')).toBeVisible();
-
-    await page.getByRole('button', { name: 'EN', exact: true }).click();
-    await expect(page.getByRole('heading', { name: 'NZ School Finder' })).toBeVisible();
-  });
 });

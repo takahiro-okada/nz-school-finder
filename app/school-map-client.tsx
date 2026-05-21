@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
 import 'leaflet/dist/leaflet.css';
 import * as L from 'leaflet';
 import { GeoJSON, MapContainer, Marker, TileLayer } from 'react-leaflet';
@@ -20,10 +19,34 @@ const shadowUrl = new URL('leaflet/dist/images/marker-shadow.png', import.meta.u
 
 L.Icon.Default.mergeOptions({ iconRetinaUrl, iconUrl, shadowUrl });
 
-export default function SchoolMapClient() {
-  const t = useTranslations();
-  const tEthnicity = useTranslations('ethnicity');
+const LABELS = {
+  map: {
+    title: 'NZ School Finder',
+    subtitle: 'Click a marker to view school details',
+    clickPrompt: 'Click a marker on the map',
+    loading: 'Loading...',
+    totalLocations: (count: number) => `${count} locations`,
+  },
+  school: {
+    decile: 'Decile (EQi Index)',
+    totalStudents: 'Total students',
+    nationality: 'Nationality',
+    total: (count: string) => `Total ${count} students`,
+    viewSite: 'View school website →',
+    viewYearData: 'View year level data →',
+  },
+  ethnicity: {
+    European: 'European',
+    Māori: 'Māori',
+    Pacific: 'Pacific',
+    Asian: 'Asian',
+    MELAA: 'MELAA',
+    Other: 'Other',
+    International: 'International',
+  },
+} as const;
 
+export default function SchoolMapClient() {
   const [schools, setSchools] = useState<SchoolRecord[]>([]);
   const [selectedSchool, setSelectedSchool] = useState<SchoolRecord | null>(null);
   const [selectedType, setSelectedType] = useState<string>('All');
@@ -116,14 +139,14 @@ export default function SchoolMapClient() {
   }, [selectedTile]);
 
   const ethnicityFields = useMemo(() => [
-    { key: 'European', label: tEthnicity('European') },
-    { key: 'Māori', label: tEthnicity('Māori') },
-    { key: 'Pacific', label: tEthnicity('Pacific') },
-    { key: 'Asian', label: tEthnicity('Asian') },
-    { key: 'MELAA', label: tEthnicity('MELAA') },
-    { key: 'Other', label: tEthnicity('Other') },
-    { key: 'International', label: tEthnicity('International') },
-  ], [tEthnicity]);
+    { key: 'European', label: LABELS.ethnicity.European },
+    { key: 'Māori', label: LABELS.ethnicity.Māori },
+    { key: 'Pacific', label: LABELS.ethnicity.Pacific },
+    { key: 'Asian', label: LABELS.ethnicity.Asian },
+    { key: 'MELAA', label: LABELS.ethnicity.MELAA },
+    { key: 'Other', label: LABELS.ethnicity.Other },
+    { key: 'International', label: LABELS.ethnicity.International },
+  ], []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -132,14 +155,14 @@ export default function SchoolMapClient() {
       try {
         const response = await fetch('/api/schools/all', { signal: controller.signal });
         if (!response.ok) {
-          throw new Error('学校データの取得に失敗しました');
+          throw new Error('Failed to fetch school data');
         }
 
         const data = await response.json();
         setSchools(Array.isArray(data.schools) ? data.schools : []);
       } catch (fetchError) {
         if ((fetchError as { name?: string })?.name !== 'AbortError') {
-          setError('学校データの取得時にエラーが発生しました。');
+          setError('An error occurred while loading school data.');
         }
       } finally {
         setLoading(false);
@@ -238,8 +261,8 @@ export default function SchoolMapClient() {
           />
 
           <FilterPanel
-            title={t('map.title')}
-            subtitle={t('map.subtitle')}
+            title={LABELS.map.title}
+            subtitle={LABELS.map.subtitle}
             groups={SCHOOL_TYPE_GROUPS}
             selectedType={selectedType}
             onSelectType={setSelectedType}
@@ -250,7 +273,7 @@ export default function SchoolMapClient() {
 
         {loading && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/90 text-slate-700">
-            {t('map.loading')}
+            {LABELS.map.loading}
           </div>
         )}
         {error && (
@@ -294,14 +317,14 @@ export default function SchoolMapClient() {
         boundaryFound={boundaryFound}
         ethnicityFields={ethnicityFields}
         labels={{
-          totalLocations: t('map.totalLocations', { count: filteredSchools.length }),
-          clickPrompt: t('map.clickPrompt'),
-          decile: t('school.decile'),
-          totalStudents: t('school.totalStudents'),
-          nationality: t('school.nationality'),
-          total: (count) => t('school.total', { count }),
-          viewSite: t('school.viewSite'),
-          viewYearData: t('school.viewYearData'),
+          totalLocations: LABELS.map.totalLocations(filteredSchools.length),
+          clickPrompt: LABELS.map.clickPrompt,
+          decile: LABELS.school.decile,
+          totalStudents: LABELS.school.totalStudents,
+          nationality: LABELS.school.nationality,
+          total: LABELS.school.total,
+          viewSite: LABELS.school.viewSite,
+          viewYearData: LABELS.school.viewYearData,
         }}
       />
     </div>

@@ -6,7 +6,7 @@ This project is intended to be safe for AI-assisted development. Agents should m
 
 - Next.js 16 App Router application.
 - TypeScript is strict and uses the `@/*` path alias from the repository root.
-- UI text is bilingual. When changing user-facing copy, update both `messages/en.json` and `messages/ja.json`.
+- UI text is English-only. Keep user-facing copy close to the components that render it unless a broader content structure becomes useful.
 - School/domain helpers live in `lib/schools`.
 - Map and school UI components live in `components/map` and `components/school`.
 - Local enrolment-zone data lives in `data/school_zones_by_id.json`; avoid editing it unless the task is explicitly data-related.
@@ -62,8 +62,8 @@ Before the first local E2E run, install the browser runtime with `npm run test:e
 When extending coverage, prefer this order:
 
 1. More unit tests for `lib/schools` formatting, filtering, and zone helpers.
-2. Component-level tests for filters, details panels, and bilingual labels.
-3. More Playwright smoke tests for the main map page, school search, and language switching.
+2. Component-level tests for filters, details panels, and dense map controls.
+3. More Playwright smoke tests for the main map page, school search, and core controls.
 4. Keep GitHub Actions green. The `Verify` workflow runs `npm run verify`; the `E2E Smoke` workflow runs `npm run test:e2e` on pull requests and can also be started manually.
 
 For AI-friendly tasks, prefer issues that include a failing test or a precise command/output expectation.

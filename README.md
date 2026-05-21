@@ -3,7 +3,7 @@
 [![Verify](https://github.com/takahiro-okada/nz-school-finder/actions/workflows/verify.yml/badge.svg)](https://github.com/takahiro-okada/nz-school-finder/actions/workflows/verify.yml)
 [![E2E Smoke](https://github.com/takahiro-okada/nz-school-finder/actions/workflows/e2e-smoke.yml/badge.svg)](https://github.com/takahiro-okada/nz-school-finder/actions/workflows/e2e-smoke.yml)
 
-An interactive school search app for New Zealand. It helps users explore schools, enrolment zones, school type filters, ethnicity breakdowns, and bilingual English/Japanese UI from a single map-focused interface.
+An interactive school search app for New Zealand. It helps users explore schools, enrolment zones, school type filters, and ethnicity breakdowns from a single map-focused interface.
 
 This project is designed as a portfolio piece for New Zealand-based software engineering roles. It demonstrates full-stack Next.js development, real public data integration, map UI implementation, responsive design, and pragmatic handling of GIS-style data.
 
@@ -22,7 +22,6 @@ Replace the placeholder image paths after adding screenshots.
 | Desktop map and details | `public/screenshots/desktop-map.png` | Shows the main map, filters, marker clusters, and school details side panel. |
 | Mobile map | `public/screenshots/mobile-map.png` | Shows the compact responsive map controls and bottom details sheet. |
 | School zone search | `public/screenshots/address-search.png` | Shows address lookup and matching schools within an enrolment zone. |
-| Japanese UI | `public/screenshots/japanese-ui.png` | Shows bilingual support for Japanese-speaking users. |
 
 Suggested markdown once screenshots are added:
 
@@ -41,7 +40,6 @@ New Zealand school information is publicly available, but comparing schools can 
 - Search a New Zealand address and check matching school zones
 - View school details without leaving the map
 - Compare ethnicity composition with headcount and percentage
-- Switch between English and Japanese
 
 ## Features
 
@@ -54,7 +52,6 @@ New Zealand school information is publicly available, but comparing schools can 
 | Enrolment zones | Displays school zone boundaries from local GeoJSON data. |
 | School details panel | Shows school type, city, authority, roll size, EQI/decile-like value, and ethnicity breakdown. |
 | Responsive layout | Desktop uses a side panel; mobile keeps the map primary with a compact bottom sheet. |
-| i18n | English/Japanese language switching via `next-intl`. |
 
 ## Tech Stack
 
@@ -67,7 +64,6 @@ New Zealand school information is publicly available, but comparing schools can 
 | Map | Leaflet / React Leaflet | Mature open-source web mapping stack. |
 | Marker clustering | react-leaflet-cluster | Keeps thousands of school markers usable. |
 | Geospatial logic | Turf.js | Point-in-polygon checks for address-to-zone matching. |
-| i18n | next-intl | Simple bilingual support with message files. |
 
 ## Architecture
 
@@ -108,8 +104,6 @@ lib/
     constants.ts               Map defaults, school type config, tile layers
     types.ts                   Shared school and GeoJSON types
     utils.ts                   School formatting, geocoding, zone lookup helpers
-messages/
-  en.json / ja.json            Translation files
 data/
   school_zones_by_id.json      Local zone data keyed by school id
 ```
@@ -123,7 +117,6 @@ data/
 | Large marker count | Uses marker clustering plus zoom-based labels to keep the map responsive. |
 | School zone matching | Converts address search results to a point and checks that point against GeoJSON polygons with Turf.js. |
 | Mobile map usability | Keeps controls compact and avoids modal-first interactions so the map remains visible. |
-| Bilingual UX | Keeps translated labels in message files and switches locale with a cookie-backed control. |
 
 ## Getting Started
 
@@ -178,7 +171,6 @@ npm run build
 | Core map experience | Done |
 | School filtering | Done |
 | Address-to-zone search | Done |
-| English/Japanese UI | Done |
 | Responsive layout | Done |
 | Code organisation | In progress |
 | Automated tests | Started |
