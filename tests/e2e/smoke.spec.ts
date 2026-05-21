@@ -12,6 +12,7 @@ test.describe('school finder smoke flow', () => {
     await expect(page.getByRole('button', { name: 'Standard' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Satellite' })).toBeVisible();
     await expect(page.getByText('Click a marker on the map')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Schools' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'About' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Privacy' })).toBeVisible();
   });
@@ -61,5 +62,18 @@ test.describe('school finder smoke flow', () => {
     await page.getByRole('link', { name: 'Privacy' }).click();
     await expect(page.getByRole('heading', { name: 'Privacy' })).toBeVisible();
     await expect(page.getByText('The app does not send the typed address to Google Analytics.')).toBeVisible();
+  });
+
+  test('opens SEO school and location pages', async ({ page }) => {
+    await page.goto('/schools');
+
+    await expect(page.getByRole('heading', { name: 'Explore schools across New Zealand' })).toBeVisible();
+    await page.getByRole('link', { name: /Auckland/ }).first().click();
+    await expect(page.getByRole('heading', { name: 'Auckland schools' })).toBeVisible();
+
+    await page.goto('/schools/okaihau-college-7');
+    await expect(page.getByRole('heading', { name: 'Okaihau College' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Ethnicity breakdown' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Education Counts profile' })).toBeVisible();
   });
 });

@@ -51,6 +51,7 @@ New Zealand school information is publicly available, but comparing schools can 
 | Address search | Geocodes a NZ address and finds schools whose zone contains the address point. |
 | Enrolment zones | Displays school zone boundaries from local GeoJSON data. |
 | School details panel | Shows school type, city, authority, roll size, EQI/decile-like value, and ethnicity breakdown. |
+| SEO school pages | Generates crawlable school and location pages from the local school data snapshot. |
 | Responsive layout | Desktop uses a side panel; mobile keeps the map primary with a compact bottom sheet. |
 
 ## Tech Stack
@@ -90,6 +91,8 @@ app/
   api/
     school-zone/route.ts       School zone API route
     schools/all/route.ts       Public school data proxy route
+  locations/[city]/page.tsx    Location landing pages generated from school records
+  schools/[slug]/page.tsx      School profile pages generated from school records
   school-map-client.tsx        Client-side state and map composition
 components/
   map/
@@ -104,6 +107,7 @@ lib/
     constants.ts               Map defaults, school type config, tile layers
     types.ts                   Shared school and GeoJSON types
     utils.ts                   School formatting, geocoding, zone lookup helpers
+    catalog.ts                 School catalog, slugs, summaries, and SEO page helpers
 data/
   school_zones_by_id.json      Local zone data keyed by school id
 ```
@@ -117,6 +121,7 @@ data/
 | Large marker count | Uses marker clustering plus zoom-based labels to keep the map responsive. |
 | School zone matching | Converts address search results to a point and checks that point against GeoJSON polygons with Turf.js. |
 | Mobile map usability | Keeps controls compact and avoids modal-first interactions so the map remains visible. |
+| SEO crawl surface | Adds `/schools`, `/schools/[slug]`, and `/locations/[city]` pages to expose useful data outside the map-only interface. |
 
 ## Getting Started
 
