@@ -63,6 +63,7 @@ export default function SchoolMapClient() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement | null>(null);
+  const urlSchoolHandledRef = useRef(false);
 
   const handleAddressSearch = async () => {
     const trimmedAddress = searchAddress.trim();
@@ -111,7 +112,7 @@ export default function SchoolMapClient() {
     trackEvent('address_search_cleared');
   };
 
-  const selectSchool = (school: SchoolRecord, source: 'map_marker' | 'zone_result') => {
+  const selectSchool = (school: SchoolRecord, source: 'map_marker' | 'zone_result' | 'profile_link') => {
     setSelectedSchool(school);
     trackEvent('school_selected', {
       source,
@@ -207,6 +208,23 @@ export default function SchoolMapClient() {
   }, []);
 
   useEffect(() => {
+    if (urlSchoolHandledRef.current || !schools.length || typeof window === 'undefined') {
+      return;
+    }
+
+    const schoolId = new URLSearchParams(window.location.search).get('school');
+    urlSchoolHandledRef.current = true;
+    if (!schoolId) {
+      return;
+    }
+
+    const matchedSchool = schools.find((school) => getSchoolId(school) === schoolId);
+    if (matchedSchool) {
+      queueMicrotask(() => selectSchool(matchedSchool, 'profile_link'));
+    }
+  }, [schools]);
+
+  useEffect(() => {
     const controller = new AbortController();
     let isCurrent = true;
 
@@ -274,6 +292,16 @@ export default function SchoolMapClient() {
     [filteredSchools, zoom, selectedSchool]
   );
 
+  const selectedPosition = useMemo(() => {
+    if (!selected) {
+      return null;
+    }
+
+    const latitude = formatValue(selected.Latitude ?? selected.latitude ?? selected.Lat);
+    const longitude = formatValue(selected.Longitude ?? selected.longitude ?? selected.Lon);
+    return latitude && longitude ? L.latLng(latitude, longitude) : null;
+  }, [selected]);
+
   return (
     <div className="flex h-dvh w-full flex-col overflow-hidden bg-white lg:flex-row">
       <section className="relative min-h-0 flex-1 overflow-hidden bg-white">
@@ -318,6 +346,7 @@ export default function SchoolMapClient() {
         <MapContainer center={NZ_CENTER} zoom={DEFAULT_ZOOM} scrollWheelZoom className="h-full w-full">
           <MapZoomHandler onZoomChange={setZoom} />
           {searchMarker && <MapController center={searchMarker} zoom={14} />}
+          {selectedPosition && <MapController center={selectedPosition} zoom={14} />}
           <TileLayer attribution={selectedTileLayer.attribution} url={selectedTileLayer.url} />
           <MarkerClusterGroup chunkedLoading disableClusteringAtZoom={13}>
             {markers.map(({ school, position, icon }) => (

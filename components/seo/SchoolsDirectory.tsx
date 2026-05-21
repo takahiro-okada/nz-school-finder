@@ -60,8 +60,18 @@ export default function SchoolsDirectory({ schools, cityOptions, typeOptions }: 
   const visibleSchools = filteredSchools.slice(0, visibleCount);
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 sm:p-6">
-      <div className="grid gap-3 lg:grid-cols-[1fr_180px_180px_170px]">
+    <section className="rounded-lg border border-slate-200 bg-white">
+      <div className="border-b border-slate-200 p-4 sm:p-5">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-xl font-bold">Browse all schools</h2>
+            <p className="mt-1 text-sm text-slate-600">Filter the full directory without leaving the page.</p>
+          </div>
+          <div className="text-sm font-medium text-slate-500">{schools.length.toLocaleString('en-NZ')} open schools</div>
+        </div>
+      </div>
+
+      <div className="grid gap-3 p-4 sm:p-5 lg:grid-cols-[1fr_180px_180px_170px]">
         <label className="block">
           <span className="text-xs font-semibold uppercase text-slate-500">Search</span>
           <input
@@ -124,7 +134,7 @@ export default function SchoolsDirectory({ schools, cityOptions, typeOptions }: 
         </label>
       </div>
 
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 px-4 py-3 sm:px-5">
         <p className="text-sm text-slate-600">
           Showing {visibleSchools.length.toLocaleString('en-NZ')} of {filteredSchools.length.toLocaleString('en-NZ')} matching schools
         </p>
@@ -144,10 +154,10 @@ export default function SchoolsDirectory({ schools, cityOptions, typeOptions }: 
         )}
       </div>
 
-      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3 px-4 pb-5 sm:px-5 md:grid-cols-2 xl:grid-cols-3">
         {visibleSchools.map((school) => (
           <Link
-            className="rounded-lg border border-slate-200 p-4 transition hover:border-blue-300 hover:bg-blue-50"
+            className="rounded-lg border border-slate-200 bg-white p-4 transition hover:border-blue-300 hover:bg-blue-50"
             href={`/schools/${school.slug}`}
             key={school.slug}
           >
@@ -175,7 +185,7 @@ export default function SchoolsDirectory({ schools, cityOptions, typeOptions }: 
       </div>
 
       {visibleCount < filteredSchools.length && (
-        <div className="mt-5 flex justify-center">
+        <div className="flex justify-center border-t border-slate-200 px-4 py-5">
           <button
             className="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
             onClick={() => setVisibleCount((count) => count + defaultLimit)}

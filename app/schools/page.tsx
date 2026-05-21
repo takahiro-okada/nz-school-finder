@@ -53,14 +53,14 @@ export default function SchoolsPage() {
   return (
     <SeoPageShell>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-stretch">
+      <section className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr] lg:items-stretch">
         <div className="flex flex-col justify-center rounded-lg border border-slate-200 bg-white p-6 sm:p-8">
-          <p className="text-sm font-semibold uppercase text-blue-700">New Zealand school directory</p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Explore schools across New Zealand</h1>
+          <p className="text-xs font-semibold uppercase text-blue-700">School directory</p>
+          <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Find and compare New Zealand schools</h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-700">
-            Browse public school data by city, school type, student roll, authority, EQI index, and
-            enrolment zone availability. The map remains the primary tool, while these pages make
-            school information easier to discover from search.
+            Search public school records by name, location, type, authority, roll size, and EQI
+            index. Use this directory when you want a scannable list, then open the map for spatial
+            context and enrolment zone exploration.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link className="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800" href="/">
@@ -74,26 +74,24 @@ export default function SchoolsPage() {
             </Link>
           </div>
         </div>
-        <div className="grid gap-3 rounded-lg border border-slate-200 bg-slate-900 p-4 text-white">
+        <div className="grid gap-3 rounded-lg border border-blue-100 bg-blue-50 p-4 text-slate-950">
           <div className="grid grid-cols-2 gap-3">
             <Stat label="Schools" value={schools.length.toLocaleString('en-NZ')} />
             <Stat label="Locations" value={locations.length.toLocaleString('en-NZ')} />
             <Stat label="Students" value={getStudentTotal(schools).toLocaleString('en-NZ')} />
             <Stat label="Data source" value="MoE" />
           </div>
-          <div className="min-h-32 rounded-md border border-white/10 bg-[linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:24px_24px] p-4">
-            <div className="h-full rounded-md bg-white/10 p-4">
-              <div className="text-sm font-semibold">Automated from public school records</div>
-              <div className="mt-2 text-sm text-slate-300">
-                Search, filters, charts, profile pages, and sitemap URLs are generated from the same
-                local data snapshot used by the map.
-              </div>
+          <div className="rounded-md border border-blue-100 bg-white p-4">
+            <div className="text-sm font-semibold">Generated from the same data as the map</div>
+            <div className="mt-2 text-sm leading-6 text-slate-600">
+              Search, filters, profile pages, and sitemap URLs update from the local school data
+              snapshot, keeping this page useful without manual content work.
             </div>
           </div>
         </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-2">
+      <section className="grid items-start gap-4 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="rounded-lg border border-slate-200 bg-white p-6">
           <h2 className="text-xl font-bold">School type distribution</h2>
           <div className="mt-4">
@@ -126,8 +124,8 @@ export default function SchoolsPage() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md bg-white/10 p-4">
-      <div className="text-xs font-semibold uppercase text-slate-300">{label}</div>
+    <div className="rounded-md border border-blue-100 bg-white p-4">
+      <div className="text-xs font-semibold uppercase text-slate-500">{label}</div>
       <div className="mt-2 text-2xl font-bold">{value}</div>
     </div>
   );
