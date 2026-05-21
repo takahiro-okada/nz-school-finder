@@ -49,8 +49,10 @@ export default async function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <head>
         <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_ID} />
+      </head>
+      <body className="min-h-full flex flex-col">
         {children}
       </body>
     </html>
