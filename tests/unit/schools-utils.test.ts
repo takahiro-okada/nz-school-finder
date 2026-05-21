@@ -34,7 +34,11 @@ describe('school utility formatting', () => {
     expect(buildSchoolLink({ School_Id: '321' })).toBe(
       'https://www.educationcounts.govt.nz/find-school/school/population/year?school=321'
     );
+    expect(buildSchoolLink({ School_Id: ' 321 ' })).toBe(
+      'https://www.educationcounts.govt.nz/find-school/school/population/year?school=321'
+    );
     expect(buildSchoolLink({ Org_Name: 'No Id School' })).toBeUndefined();
+    expect(buildSchoolLink({ School_Id: '   ' })).toBeUndefined();
   });
 });
 
