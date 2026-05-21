@@ -67,7 +67,7 @@ test.describe('school finder smoke flow', () => {
   test('opens school directory and profile pages', async ({ page }) => {
     await page.goto('/schools');
 
-    await expect(page.getByRole('heading', { name: 'Explore schools across New Zealand' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Find and compare New Zealand schools' })).toBeVisible();
     await page.getByPlaceholder('School name, city, type...').fill('Okaihau');
     await expect(page.getByRole('link', { name: /Okaihau College/ })).toBeVisible();
 
@@ -76,5 +76,9 @@ test.describe('school finder smoke flow', () => {
     await expect(page.getByRole('heading', { name: 'Data profile' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Ethnicity breakdown' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Education Counts profile' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'View on map' })).toHaveAttribute('href', '/?school=7');
+
+    await page.goto('/?school=7');
+    await expect(page.getByRole('heading', { name: 'Okaihau College' })).toBeVisible();
   });
 });
