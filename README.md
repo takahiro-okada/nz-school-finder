@@ -148,6 +148,8 @@ Copy `.env.example` to `.env.local` for local configuration.
 | `NEXT_PUBLIC_SITE_URL` | Recommended | Canonical public URL used for metadata. |
 | `NEXT_PUBLIC_GA_ID` | Optional | Google Analytics 4 measurement ID. Analytics is disabled when empty. |
 
+For production domain, analytics, and Search Console setup, see [`docs/production-launch.md`](docs/production-launch.md).
+
 ### Data Refresh
 
 The app serves school records from `data/schools.json` so production does not depend on live public API calls at runtime.
