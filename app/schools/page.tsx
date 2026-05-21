@@ -74,16 +74,16 @@ export default function SchoolsPage() {
             </Link>
           </div>
         </div>
-        <div className="grid gap-3 rounded-lg bg-slate-950 p-4 text-white">
+        <div className="grid gap-3 rounded-lg border border-blue-100 bg-blue-50 p-4 text-slate-950">
           <div className="grid grid-cols-2 gap-3">
             <Stat label="Schools" value={schools.length.toLocaleString('en-NZ')} />
             <Stat label="Locations" value={locations.length.toLocaleString('en-NZ')} />
             <Stat label="Students" value={getStudentTotal(schools).toLocaleString('en-NZ')} />
             <Stat label="Data source" value="MoE" />
           </div>
-          <div className="rounded-md border border-white/10 bg-white/5 p-4">
+          <div className="rounded-md border border-blue-100 bg-white p-4">
             <div className="text-sm font-semibold">Generated from the same data as the map</div>
-            <div className="mt-2 text-sm leading-6 text-slate-300">
+            <div className="mt-2 text-sm leading-6 text-slate-600">
               Search, filters, profile pages, and sitemap URLs update from the local school data
               snapshot, keeping this page useful without manual content work.
             </div>
@@ -124,8 +124,8 @@ export default function SchoolsPage() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md bg-white/10 p-4">
-      <div className="text-xs font-semibold uppercase text-slate-300">{label}</div>
+    <div className="rounded-md border border-blue-100 bg-white p-4">
+      <div className="text-xs font-semibold uppercase text-slate-500">{label}</div>
       <div className="mt-2 text-2xl font-bold">{value}</div>
     </div>
   );
