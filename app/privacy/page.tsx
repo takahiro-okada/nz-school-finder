@@ -21,10 +21,11 @@ export default function PrivacyPage() {
             school filters, and map style changes.
           </p>
           <p>
-            Address search text is used in the browser to geocode a location and match enrolment
-            zones. The app does not send the typed address to Google Analytics. Analytics events only
-            include non-identifying details such as whether a search found coordinates and how many
-            schools matched the zone.
+            Address search text is sent to the app&apos;s geocoding endpoint and the external
+            geocoding service used to resolve coordinates, then matched against enrolment zones. The
+            app does not send the typed address to Google Analytics. Analytics events only include
+            non-identifying details such as whether a search found coordinates and how many schools
+            matched the zone.
           </p>
           <p>
             The app does not provide user accounts and does not intentionally collect personal

@@ -74,6 +74,7 @@ Manual checks:
 
 - The map loads on desktop and mobile.
 - Address search input is readable and usable.
+- Address search returns a result for a common New Zealand place such as `Wellington`.
 - About and Privacy pages are reachable from the map controls.
 - `/api/schools/all` returns school records.
 - `/robots.txt` references the production sitemap.
