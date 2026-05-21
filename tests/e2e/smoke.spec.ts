@@ -12,6 +12,8 @@ test.describe('school finder smoke flow', () => {
     await expect(page.getByRole('button', { name: 'Standard' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Satellite' })).toBeVisible();
     await expect(page.getByText('Click a marker on the map')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'About' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Privacy' })).toBeVisible();
   });
 
   test('enables address search only after input and can clear it', async ({ page }) => {
@@ -46,5 +48,18 @@ test.describe('school finder smoke flow', () => {
     await satelliteStyle.click();
     await expect(satelliteStyle).toHaveClass(/bg-slate-900/);
     await expect(standardStyle).not.toHaveClass(/bg-slate-900/);
+  });
+
+  test('opens public information pages from the map controls', async ({ page }) => {
+    await page.goto('/');
+
+    await page.getByRole('link', { name: 'About' }).click();
+    await expect(page.getByRole('heading', { name: 'About NZ School Finder' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Back to map' })).toBeVisible();
+
+    await page.goto('/');
+    await page.getByRole('link', { name: 'Privacy' }).click();
+    await expect(page.getByRole('heading', { name: 'Privacy' })).toBeVisible();
+    await expect(page.getByText('The app does not send the typed address to Google Analytics.')).toBeVisible();
   });
 });

@@ -1,6 +1,7 @@
 'use client';
 
 import type { RefObject } from 'react';
+import Link from 'next/link';
 import type { SchoolRecord, SchoolTypeGroup, TileLayerConfig } from '@/lib/schools/types';
 import { displayValue, getSchoolId } from '@/lib/schools/utils';
 
@@ -125,6 +126,14 @@ export function FilterPanel({ title, subtitle, groups, selectedType, onSelectTyp
             </button>
           ))}
         </div>
+      </div>
+      <div className="mt-3 flex gap-3 text-xs text-slate-500">
+        <Link className="hover:text-slate-900" href="/about">
+          About
+        </Link>
+        <Link className="hover:text-slate-900" href="/privacy">
+          Privacy
+        </Link>
       </div>
     </>
   );

@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "data:update:schools": "node scripts/update-schools-data.mjs",
+    "production:check": "node scripts/check-production.mjs",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",

@@ -31,12 +31,13 @@ export const fetchSchoolZone = async (schoolId: number) => {
 };
 
 export const geocode = async (address: string) => {
-  const res = await fetch(
-    `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&countrycodes=nz&format=json&limit=1`,
-    { headers: { 'User-Agent': 'nz-school-finder' } }
-  );
+  const res = await fetch(`/api/geocode?q=${encodeURIComponent(address)}`);
+  if (!res.ok) {
+    throw new Error('Geocoding request failed');
+  }
+
   const data = await res.json();
-  return data[0] ? { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) } : null;
+  return data?.location ?? null;
 };
 
 export const findSchoolsInZoneWithZones = (
