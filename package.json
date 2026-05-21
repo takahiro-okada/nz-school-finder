@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "data:update:schools": "node scripts/update-schools-data.mjs",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",

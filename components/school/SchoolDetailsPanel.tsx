@@ -107,7 +107,7 @@ function SchoolSummary({
             ? 'border border-rose-200 bg-rose-100 text-rose-800'
             : 'border border-slate-200 bg-slate-100 text-slate-700'
         }`}>
-          {boundaryFound === true ? '学区あり' : boundaryFound === false ? '学区データなし' : '学区確認中'}
+          {boundaryFound === true ? 'School district' : boundaryFound === false ? 'No school district' : 'Checking district'}
         </span>
       </div>
     </div>

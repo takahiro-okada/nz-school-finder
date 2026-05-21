@@ -44,12 +44,19 @@ Development server:
 npm run dev
 ```
 
+School data snapshot refresh:
+
+```bash
+npm run data:update:schools
+```
+
 ## Change Guidelines
 
 - Prefer existing components, helpers, constants, and styling patterns before adding new abstractions.
 - Keep changes narrowly scoped to the requested behavior.
 - Do not introduce new runtime dependencies without a clear reason.
 - Do not call live external services from tests; use fixtures or mocks.
+- The app serves school records from `data/schools.json`. Refresh that snapshot with `npm run data:update:schools` instead of fetching the public data API at runtime.
 - Preserve the map-first product experience. Avoid landing-page patterns for core app work.
 - When a change affects filters, school records, zones, or translated labels, check the relevant UI paths as well as the TypeScript/lint/build harness.
 

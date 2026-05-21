@@ -139,6 +139,14 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+### Data Refresh
+
+The app serves school records from `data/schools.json` so production does not depend on live public API calls at runtime.
+
+```bash
+npm run data:update:schools
+```
+
 ### Quality Checks
 
 ```bash
