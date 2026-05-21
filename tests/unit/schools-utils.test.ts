@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { SchoolRecord, ZoneFeature } from '@/lib/schools/types';
 import {
+  getCitySlug,
+  getSchoolBySlug,
+  getSchoolSlug,
+  slugify,
+} from '@/lib/schools/catalog';
+import {
   buildSchoolLink,
   displayValue,
   findSchoolsInZoneWithZones,
@@ -39,6 +45,20 @@ describe('school utility formatting', () => {
     );
     expect(buildSchoolLink({ Org_Name: 'No Id School' })).toBeUndefined();
     expect(buildSchoolLink({ School_Id: '   ' })).toBeUndefined();
+  });
+});
+
+describe('school catalog urls', () => {
+  it('creates readable slugs from school and location names', () => {
+    expect(slugify('Ōtūmoetai College')).toBe('otumoetai-college');
+    expect(getCitySlug('Lower Hutt')).toBe('lower-hutt');
+  });
+
+  it('resolves school detail pages by generated slug', () => {
+    const school = getSchoolBySlug('okaihau-college-7');
+
+    expect(school?.Org_Name).toBe('Okaihau College');
+    expect(school ? getSchoolSlug(school) : '').toBe('okaihau-college-7');
   });
 });
 

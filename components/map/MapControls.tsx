@@ -128,6 +128,9 @@ export function FilterPanel({ title, subtitle, groups, selectedType, onSelectTyp
         </div>
       </div>
       <div className="mt-3 flex gap-3 text-xs text-slate-500">
+        <Link className="hover:text-slate-900" href="/schools">
+          Schools
+        </Link>
         <Link className="hover:text-slate-900" href="/about">
           About
         </Link>
