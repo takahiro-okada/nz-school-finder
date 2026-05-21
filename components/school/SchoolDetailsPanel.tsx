@@ -1,6 +1,5 @@
 'use client';
 
-import LocaleSwitcher from '@/components/LocaleSwitcher';
 import type { EthnicityField, SchoolRecord } from '@/lib/schools/types';
 import { TYPE_CONFIG } from '@/lib/schools/constants';
 import { buildSchoolLink, displayValue, formatValue } from '@/lib/schools/utils';
@@ -33,9 +32,8 @@ export default function SchoolDetailsPanel({
       selected ? 'max-h-[34dvh]' : 'max-h-20'
     }`}>
       <div className="p-3 sm:p-6">
-        <div className="mb-3 flex items-center justify-between gap-3 sm:mb-6">
+        <div className="mb-3 sm:mb-6">
           <span className="text-sm text-slate-500">{labels.totalLocations}</span>
-          <LocaleSwitcher />
         </div>
 
         {selected ? (
