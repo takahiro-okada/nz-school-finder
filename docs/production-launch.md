@@ -7,7 +7,7 @@ Use this checklist when preparing NZ School Finder for real users.
 Start with a subdomain:
 
 ```txt
-schools.dev-oka.com
+nz-schools.dev-oka.com
 ```
 
 This keeps the app connected to the existing portfolio domain while still making it feel like a standalone product. A subdirectory such as `dev-oka.com/nz-school-finder` is possible, but it usually adds routing, asset path, and hosting complexity for a full-screen Next.js app.
@@ -18,15 +18,15 @@ Set these in the Vercel project before promoting the custom domain.
 
 | Variable | Value |
 | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | `https://schools.dev-oka.com` |
+| `NEXT_PUBLIC_SITE_URL` | `https://nz-schools.dev-oka.com` |
 | `NEXT_PUBLIC_GA_ID` | GA4 measurement ID, for example `G-XXXXXXXXXX` |
 
 ## Domain Setup
 
-1. Add `schools.dev-oka.com` as a custom domain in the Vercel project.
+1. Add `nz-schools.dev-oka.com` as a custom domain in the Vercel project.
 2. Add the DNS record requested by Vercel at the DNS provider for `dev-oka.com`.
 3. Wait for DNS and SSL certificate provisioning to complete.
-4. Visit `https://schools.dev-oka.com`, `/about`, `/privacy`, `/robots.txt`, and `/sitemap.xml`.
+4. Visit `https://nz-schools.dev-oka.com`, `/about`, `/privacy`, `/robots.txt`, and `/sitemap.xml`.
 5. Confirm `NEXT_PUBLIC_SITE_URL` is set before the production deployment used for indexing.
 
 ## Analytics Setup
@@ -57,9 +57,9 @@ The app does not send typed address text to analytics.
 
 ## Search Console
 
-1. Add the `schools.dev-oka.com` URL prefix property.
+1. Add the `nz-schools.dev-oka.com` URL prefix property.
 2. Verify ownership using the method that best fits the current DNS/hosting setup.
-3. Submit `https://schools.dev-oka.com/sitemap.xml`.
+3. Submit `https://nz-schools.dev-oka.com/sitemap.xml`.
 4. Inspect the homepage URL after deployment.
 
 ## Pre-Launch Smoke Check
@@ -67,7 +67,7 @@ The app does not send typed address text to analytics.
 ```bash
 npm run verify
 npm run test:e2e
-npm run production:check -- https://schools.dev-oka.com
+npm run production:check -- https://nz-schools.dev-oka.com
 ```
 
 Manual checks:

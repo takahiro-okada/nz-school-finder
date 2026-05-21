@@ -1,7 +1,7 @@
 const baseUrlInput = process.argv[2] ?? process.env.NEXT_PUBLIC_SITE_URL;
 
 if (!baseUrlInput) {
-  console.error('Usage: npm run production:check -- https://schools.dev-oka.com');
+  console.error('Usage: npm run production:check -- https://nz-schools.dev-oka.com');
   console.error('Or set NEXT_PUBLIC_SITE_URL before running the command.');
   process.exit(1);
 }
