@@ -17,8 +17,8 @@ export const formatValue = (value: unknown) => {
 };
 
 export const buildSchoolLink = (school: SchoolRecord) => {
-  const id = school?.School_Id ?? school?.SchoolId ?? school?.SchoolID;
-  return id ? `https://www.educationcounts.govt.nz/find-school/school/population/year?school=${encodeURIComponent(String(id))}` : undefined;
+  const id = String(school?.School_Id ?? school?.SchoolId ?? school?.SchoolID ?? '').trim();
+  return id ? `https://www.educationcounts.govt.nz/find-school/school/population/year?school=${encodeURIComponent(id)}` : undefined;
 };
 
 export const fetchSchoolZone = async (schoolId: number) => {
