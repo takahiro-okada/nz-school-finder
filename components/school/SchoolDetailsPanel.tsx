@@ -1,6 +1,8 @@
 'use client';
 
 import type { RefObject } from 'react';
+import Link from 'next/link';
+import { getSchoolSlug } from '@/lib/schools/urls';
 import type { EthnicityField, SchoolRecord } from '@/lib/schools/types';
 import { TYPE_CONFIG } from '@/lib/schools/constants';
 import { buildSchoolLink, displayValue, formatValue } from '@/lib/schools/utils';
@@ -123,6 +125,12 @@ function SchoolSummary({
   return (
     <div className="mb-5 sm:mb-6">
       <h2 className="mb-2 text-xl font-bold text-slate-950">{displayValue(selected.Org_Name)}</h2>
+      <Link
+        href={`/schools/${getSchoolSlug(selected)}`}
+        className="mb-3 inline-flex min-h-11 items-center rounded-md bg-blue-700 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+      >
+        View full school profile
+      </Link>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between lg:flex-col lg:items-start">
         <span className="text-sm text-slate-500">
           {`${typeLabel} · ${displayValue(selected.Authority)} · ${displayValue(selected.Add1_City)}`}

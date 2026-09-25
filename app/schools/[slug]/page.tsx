@@ -14,9 +14,12 @@ import {
 } from '@/lib/schools/catalog';
 import { siteUrl } from '@/lib/site';
 import { buildSchoolLink, displayValue, getSchoolId } from '@/lib/schools/utils';
+import { getDirectoryReturnHref } from '@/lib/schools/urls';
+import { getNearbySchools } from '@/lib/schools/nearby';
 
 type SchoolPageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ returnTo?: string | string[] }>;
 };
 
 export async function generateMetadata({ params }: SchoolPageProps): Promise<Metadata> {
@@ -45,7 +48,7 @@ export async function generateMetadata({ params }: SchoolPageProps): Promise<Met
   };
 }
 
-export default async function SchoolPage({ params }: SchoolPageProps) {
+export default async function SchoolPage({ params, searchParams }: SchoolPageProps) {
   const { slug } = await params;
   const school = getSchoolBySlug(slug);
 
@@ -54,10 +57,10 @@ export default async function SchoolPage({ params }: SchoolPageProps) {
   }
 
   const city = getCityName(school);
-  const relatedSchools = getAllSchools()
-    .filter((item) => getSchoolId(item) !== getSchoolId(school))
-    .filter((item) => getCityName(item) === city || displayValue(item.Org_Type) === displayValue(school.Org_Type))
-    .slice(0, 8);
+  const nearbySchools = getNearbySchools(school, getAllSchools());
+  const { returnTo } = await searchParams;
+  const directoryHref = getDirectoryReturnHref(returnTo);
+  const hasDirectoryContext = directoryHref !== '/schools' || returnTo === '/schools';
   const educationCountsLink = buildSchoolLink(school);
   const schoolUrl = displayValue(school.URL, '');
   const ethnicity = getEthnicityBreakdown(school);
@@ -79,6 +82,13 @@ export default async function SchoolPage({ params }: SchoolPageProps) {
   return (
     <SeoPageShell>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <nav aria-label="Breadcrumb" className="flex flex-wrap gap-2 text-sm text-slate-600">
+        <Link className="text-blue-700 underline" href={`${directoryHref}#school-directory`}>
+          {hasDirectoryContext ? 'Back to results' : 'All schools'}
+        </Link>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{name}</span>
+      </nav>
       <section className="overflow-hidden rounded-lg border border-slate-200 bg-white">
         <div className="grid gap-0 lg:grid-cols-[1fr_320px]">
           <div className="p-6 sm:p-8">
@@ -101,9 +111,9 @@ export default async function SchoolPage({ params }: SchoolPageProps) {
               </Link>
               <Link
                 className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-100"
-                href="/schools"
+                href={`${directoryHref}#school-directory`}
               >
-                Back to directory
+                {hasDirectoryContext ? 'Back to results' : 'Back to directory'}
               </Link>
             </div>
           </div>
@@ -188,18 +198,20 @@ export default async function SchoolPage({ params }: SchoolPageProps) {
         </div>
       </section>
 
-      {relatedSchools.length ? (
+      {nearbySchools.length ? (
         <section className="rounded-lg border border-slate-200 bg-white p-6">
-          <h2 className="text-xl font-bold">Related schools</h2>
+          <h2 className="text-xl font-bold">Nearby schools</h2>
+          <p className="mt-2 text-sm text-slate-600">Within 50 km, ordered by straight-line distance.</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {relatedSchools.map((item) => (
+            {nearbySchools.map(({ school: item, distanceKm }) => (
               <Link
                 key={getSchoolSlug(item)}
                 className="rounded-md border border-slate-200 p-3 hover:border-blue-300 hover:bg-blue-50"
-                href={`/schools/${getSchoolSlug(item)}`}
+                href={`/schools/${getSchoolSlug(item)}${hasDirectoryContext ? `?returnTo=${encodeURIComponent(directoryHref)}` : ''}`}
               >
                 <div className="font-semibold text-slate-950">{displayValue(item.Org_Name)}</div>
                 <div className="mt-1 text-sm text-slate-600">{displayValue(item.Org_Type)}</div>
+                <div className="mt-2 text-sm text-slate-600">{getCityName(item)} · {distanceKm.toFixed(1)} km away</div>
               </Link>
             ))}
           </div>
