@@ -1,7 +1,9 @@
 import schoolsData from '@/data/schools.json';
 import { SCHOOL_TYPE_GROUPS, TYPE_CONFIG } from './constants';
 import type { SchoolRecord } from './types';
-import { displayValue, formatValue, getSchoolId } from './utils';
+import { displayValue, formatValue } from './utils';
+import { getSchoolSlug, slugify } from './urls';
+export { getSchoolSlug, slugify } from './urls';
 
 const schools = (Array.isArray(schoolsData.schools) ? schoolsData.schools : []) as SchoolRecord[];
 
@@ -15,23 +17,10 @@ export const ethnicityFields = [
   { key: 'International', label: 'International' },
 ];
 
-export function slugify(value: unknown) {
-  return String(value ?? '')
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
 export function getAllSchools() {
   return [...schools].sort((a, b) =>
     displayValue(a.Org_Name, '').localeCompare(displayValue(b.Org_Name, ''), 'en-NZ')
   );
-}
-
-export function getSchoolSlug(school: SchoolRecord) {
-  return `${slugify(school.Org_Name)}-${getSchoolId(school)}`;
 }
 
 export function getSchoolBySlug(slug: string) {
