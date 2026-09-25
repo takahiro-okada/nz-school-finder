@@ -21,6 +21,10 @@ function boxesOverlap(
 }
 
 test.describe('school finder smoke flow', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.route(/^https?:\/\/(?!localhost:3000)/, (route) => route.abort());
+  });
+
   test('loads the map shell and core controls', async ({ page }) => {
     await page.goto('/');
 
@@ -47,9 +51,10 @@ test.describe('school finder smoke flow', () => {
     await addressInput.fill('Wellington');
     await expect(searchButton).toBeEnabled();
 
-    await page.getByRole('button', { name: 'X', exact: true }).click();
+    await page.getByRole('button', { name: 'Clear address search' }).click();
     await expect(addressInput).toHaveValue('');
     await expect(searchButton).toBeDisabled();
+    await expect(addressInput).toBeFocused();
   });
 
   test('updates school type and map style selections', async ({ page }) => {
@@ -61,13 +66,19 @@ test.describe('school finder smoke flow', () => {
     const satelliteStyle = page.getByRole('button', { name: 'Satellite', exact: true });
 
     await expect(allFilter).toHaveClass(/bg-slate-900/);
+    await expect(allFilter).toHaveAttribute('aria-pressed', 'true');
     await secondaryFilter.click();
     await expect(secondaryFilter).toHaveClass(/bg-slate-900/);
+    await expect(secondaryFilter).toHaveAttribute('aria-pressed', 'true');
+    await expect(allFilter).toHaveAttribute('aria-pressed', 'false');
     await expect(allFilter).not.toHaveClass(/bg-slate-900/);
 
     await expect(standardStyle).toHaveClass(/bg-slate-900/);
+    await expect(standardStyle).toHaveAttribute('aria-pressed', 'true');
     await satelliteStyle.click();
     await expect(satelliteStyle).toHaveClass(/bg-slate-900/);
+    await expect(satelliteStyle).toHaveAttribute('aria-pressed', 'true');
+    await expect(standardStyle).toHaveAttribute('aria-pressed', 'false');
     await expect(standardStyle).not.toHaveClass(/bg-slate-900/);
   });
 

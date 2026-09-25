@@ -5,7 +5,12 @@ import 'leaflet/dist/leaflet.css';
 import * as L from 'leaflet';
 import { GeoJSON, MapContainer, Marker, TileLayer, ZoomControl } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
-import { FilterPanel, MapStyleSwitcher, SearchPanel } from '@/components/map/MapControls';
+import {
+  FilterPanel,
+  MapStyleSwitcher,
+  SearchPanel,
+  type AddressSearchStatus,
+} from '@/components/map/MapControls';
 import MapLegend from '@/components/map/MapLegend';
 import { MapController, MapZoomHandler } from '@/components/map/MapViewHelpers';
 import SchoolDetailsPanel from '@/components/school/SchoolDetailsPanel';
@@ -62,14 +67,23 @@ export default function SchoolMapClient() {
   const [searchMarker, setSearchMarker] = useState<L.LatLng | null>(null);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchStatus, setSearchStatus] = useState<AddressSearchStatus>('idle');
   const searchRef = useRef<HTMLDivElement | null>(null);
+  const detailsPanelRef = useRef<HTMLElement | null>(null);
+  const focusDetailsOnSelectionRef = useRef(false);
   const urlSchoolHandledRef = useRef(false);
 
   const handleAddressSearch = async () => {
     const trimmedAddress = searchAddress.trim();
-    if (!trimmedAddress) return;
+    if (!trimmedAddress) {
+      setSearchStatus('empty');
+      setSearchOpen(true);
+      return;
+    }
 
     setSearchLoading(true);
+    setSearchStatus('loading');
+    setSearchOpen(true);
     setSearchResults([]);
     setSearchMarker(null);
     trackEvent('address_search_started', { search_length: trimmedAddress.length });
@@ -81,6 +95,7 @@ export default function SchoolMapClient() {
         const matches = findSchoolsInZone(coords.lat, coords.lng, schools);
         setSearchMarker(latLng);
         setSearchResults(matches);
+        setSearchStatus(matches.length > 0 ? 'success' : 'no-zone');
         trackEvent('address_search_completed', {
           found_coordinates: true,
           matched_schools: matches.length,
@@ -88,6 +103,7 @@ export default function SchoolMapClient() {
       } else {
         setSearchResults([]);
         setSearchMarker(null);
+        setSearchStatus('location-not-found');
         trackEvent('address_search_completed', {
           found_coordinates: false,
           matched_schools: 0,
@@ -97,10 +113,18 @@ export default function SchoolMapClient() {
       console.error('Geocoding error:', error);
       setSearchResults([]);
       setSearchMarker(null);
+      setSearchStatus('error');
       trackEvent('address_search_failed');
     } finally {
       setSearchLoading(false);
-      setSearchOpen(true);
+    }
+  };
+
+  const handleAddressChange = (value: string) => {
+    setSearchAddress(value);
+    if (searchStatus !== 'idle') {
+      setSearchStatus('idle');
+      setSearchOpen(false);
     }
   };
 
@@ -109,6 +133,7 @@ export default function SchoolMapClient() {
     setSearchResults([]);
     setSearchMarker(null);
     setSearchOpen(false);
+    setSearchStatus('idle');
     trackEvent('address_search_cleared');
   };
 
@@ -167,6 +192,15 @@ export default function SchoolMapClient() {
 
     return match ? selectedSchool : null;
   }, [filteredSchools, selectedSchool]);
+
+  useEffect(() => {
+    if (!selected || !focusDetailsOnSelectionRef.current) {
+      return;
+    }
+
+    focusDetailsOnSelectionRef.current = false;
+    requestAnimationFrame(() => detailsPanelRef.current?.focus());
+  }, [selected]);
 
   const selectedTileLayer = useMemo(() => {
     return TILE_LAYERS.find((layer) => layer.key === selectedTile) ?? TILE_LAYERS[0];
@@ -317,12 +351,15 @@ export default function SchoolMapClient() {
                 searchLoading={searchLoading}
                 searchOpen={searchOpen}
                 searchResults={searchResults}
-                onAddressChange={setSearchAddress}
+                searchStatus={searchStatus}
+                onAddressChange={handleAddressChange}
                 onSearch={handleAddressSearch}
                 onClear={clearSearch}
                 onSelectSchool={(school) => {
+                  focusDetailsOnSelectionRef.current = true;
                   selectSchool(school, 'zone_result');
                   setSearchOpen(false);
+                  setSearchStatus('idle');
                 }}
               />
 
@@ -391,6 +428,7 @@ export default function SchoolMapClient() {
       </section>
 
       <SchoolDetailsPanel
+        panelRef={detailsPanelRef}
         selected={selected}
         boundaryFound={boundaryFound}
         ethnicityFields={ethnicityFields}
