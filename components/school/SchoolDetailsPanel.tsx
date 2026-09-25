@@ -1,5 +1,6 @@
 'use client';
 
+import type { RefObject } from 'react';
 import type { EthnicityField, SchoolRecord } from '@/lib/schools/types';
 import { TYPE_CONFIG } from '@/lib/schools/constants';
 import { buildSchoolLink, displayValue, formatValue } from '@/lib/schools/utils';
@@ -7,6 +8,7 @@ import EthnicityBar from './EthnicityBar';
 
 type SchoolDetailsPanelProps = {
   selected: SchoolRecord | null;
+  panelRef: RefObject<HTMLElement | null>;
   boundaryFound: boolean | null;
   ethnicityFields: EthnicityField[];
   onClose: () => void;
@@ -24,6 +26,7 @@ type SchoolDetailsPanelProps = {
 
 export default function SchoolDetailsPanel({
   selected,
+  panelRef,
   boundaryFound,
   ethnicityFields,
   onClose,
@@ -31,6 +34,9 @@ export default function SchoolDetailsPanel({
 }: SchoolDetailsPanelProps) {
   return (
     <aside
+      ref={panelRef}
+      tabIndex={-1}
+      aria-label={selected ? `${displayValue(selected.Org_Name)} details` : 'School details'}
       className={`w-full shrink-0 overflow-y-auto border-t border-slate-200 bg-white transition-[max-height,width] lg:max-h-none lg:border-l lg:border-t-0 ${
         selected
           ? 'max-h-[46dvh] lg:w-[380px]'
@@ -45,7 +51,7 @@ export default function SchoolDetailsPanel({
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-lg text-slate-600 transition hover:bg-slate-100 hover:text-slate-950"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-lg text-slate-600 transition hover:bg-slate-100 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
               aria-label="Close school details"
             >
               ×
@@ -161,7 +167,7 @@ function SchoolLinks({
         href={String(selected.URL ?? '#')}
         target="_blank"
         rel="noopener noreferrer"
-        className="block rounded-lg bg-slate-900 px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-slate-700"
+        className="block rounded-lg bg-slate-900 px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
       >
         {viewSite}
       </a>
@@ -170,7 +176,7 @@ function SchoolLinks({
           href={schoolLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="block rounded-lg border border-slate-200 bg-white px-4 py-3 text-center text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
+          className="block rounded-lg border border-slate-200 bg-white px-4 py-3 text-center text-sm font-semibold text-slate-900 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
         >
           {viewYearData}
         </a>

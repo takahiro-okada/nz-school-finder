@@ -109,7 +109,7 @@ export default async function SchoolPage({ params }: SchoolPageProps) {
           </div>
           <div className="grid content-between border-t border-blue-100 bg-blue-50 p-5 text-slate-950 lg:border-l lg:border-t-0">
             <div>
-              <div className="text-xs font-semibold uppercase text-slate-500">Student roll</div>
+              <div className="text-xs font-semibold uppercase text-slate-700">Student roll</div>
               <div className="mt-2 text-4xl font-bold">{Number(school.Total ?? 0).toLocaleString('en-NZ')}</div>
               <div className="mt-2 text-sm text-slate-600">{displayValue(school.Authority)} · {city}</div>
             </div>
@@ -133,13 +133,13 @@ export default async function SchoolPage({ params }: SchoolPageProps) {
         <h2 className="text-xl font-bold">Data profile</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-[220px_1fr] md:items-center">
           <div className="rounded-lg border border-blue-100 bg-blue-50 p-4 text-slate-950">
-            <div className="text-xs font-semibold uppercase text-slate-500">Generated snapshot</div>
+            <div className="text-xs font-semibold uppercase text-slate-700">Generated snapshot</div>
             <div className="mt-4 flex h-36 items-end gap-2">
               <div className="w-1/3 rounded-t-md bg-blue-600" style={{ height: `${Math.min(Number(school.Total ?? 0) / 45, 100)}%` }} />
               <div className="w-1/3 rounded-t-md bg-emerald-500" style={{ height: `${Math.min(Number(school.EQi_Index ?? 0) / 6, 100)}%` }} />
               <div className="w-1/3 rounded-t-md bg-amber-300" style={{ height: school.Authority ? '64%' : '24%' }} />
             </div>
-            <div className="mt-3 grid grid-cols-3 gap-2 text-[10px] uppercase text-slate-500">
+            <div className="mt-3 grid grid-cols-3 gap-2 text-[10px] font-medium uppercase text-slate-700">
               <span>Roll</span>
               <span>EQI</span>
               <span>Source</span>
