@@ -9,6 +9,7 @@ type SchoolDetailsPanelProps = {
   selected: SchoolRecord | null;
   boundaryFound: boolean | null;
   ethnicityFields: EthnicityField[];
+  onClose: () => void;
   labels: {
     totalLocations: string;
     clickPrompt: string;
@@ -25,22 +26,42 @@ export default function SchoolDetailsPanel({
   selected,
   boundaryFound,
   ethnicityFields,
+  onClose,
   labels,
 }: SchoolDetailsPanelProps) {
   return (
-    <aside className={`w-full overflow-y-auto border-t border-slate-200 bg-white lg:max-h-none lg:w-[360px] lg:border-l lg:border-t-0 ${
-      selected ? 'max-h-[34dvh]' : 'max-h-20'
-    }`}>
-      <div className="p-3 sm:p-6">
-        <div className="mb-3 sm:mb-6">
+    <aside
+      className={`w-full shrink-0 overflow-y-auto border-t border-slate-200 bg-white transition-[max-height,width] lg:max-h-none lg:border-l lg:border-t-0 ${
+        selected
+          ? 'max-h-[46dvh] lg:w-[380px]'
+          : 'max-h-20 lg:w-[280px]'
+      }`}
+      data-testid="school-details-panel"
+    >
+      <div className="p-3 sm:p-5 lg:p-6">
+        <div className={`flex items-center justify-between gap-3 ${selected ? 'mb-3 sm:mb-5' : ''}`}>
           <span className="text-sm text-slate-500">{labels.totalLocations}</span>
+          {selected ? (
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-lg text-slate-600 transition hover:bg-slate-100 hover:text-slate-950"
+              aria-label="Close school details"
+            >
+              ×
+            </button>
+          ) : null}
         </div>
 
         {selected ? (
           <SchoolSummary selected={selected} boundaryFound={boundaryFound} />
         ) : (
-          <div className="flex min-h-32 items-center justify-center lg:h-[calc(100dvh-200px)]">
-            <p className="text-center text-slate-400">{labels.clickPrompt}</p>
+          <div className="hidden min-h-32 items-center justify-center lg:flex lg:h-[calc(100dvh-160px)]">
+            <div className="max-w-48 text-center">
+              <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-blue-50 text-xl text-blue-700">⌖</div>
+              <p className="font-medium text-slate-700">{labels.clickPrompt}</p>
+              <p className="mt-2 text-sm leading-5 text-slate-500">Select any marker to see school and enrolment-zone details.</p>
+            </div>
           </div>
         )}
 

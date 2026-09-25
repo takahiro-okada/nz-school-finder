@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
 import * as L from 'leaflet';
-import { GeoJSON, MapContainer, Marker, TileLayer } from 'react-leaflet';
+import { GeoJSON, MapContainer, Marker, TileLayer, ZoomControl } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import { FilterPanel, MapStyleSwitcher, SearchPanel } from '@/components/map/MapControls';
 import MapLegend from '@/components/map/MapLegend';
@@ -305,32 +305,41 @@ export default function SchoolMapClient() {
   return (
     <div className="flex h-dvh w-full flex-col overflow-hidden bg-white lg:flex-row">
       <section className="relative min-h-0 flex-1 overflow-hidden bg-white">
-        <div className="absolute left-3 right-3 top-3 z-[1000] rounded-lg bg-white/95 p-2 shadow-lg backdrop-blur-sm sm:left-4 sm:right-auto sm:w-[min(440px,calc(100vw-2rem))] sm:p-4 lg:max-h-[calc(100dvh-2rem)] lg:overflow-y-auto">
-          <SearchPanel
-            searchRef={searchRef}
-            searchAddress={searchAddress}
-            searchLoading={searchLoading}
-            searchOpen={searchOpen}
-            searchResults={searchResults}
-            onAddressChange={setSearchAddress}
-            onSearch={handleAddressSearch}
-            onClear={clearSearch}
-            onSelectSchool={(school) => {
-              selectSchool(school, 'zone_result');
-              setSearchOpen(false);
-            }}
-          />
+        <div className="pointer-events-none absolute inset-x-3 top-3 z-[1000] sm:inset-x-4 sm:top-4">
+          <div className="flex max-h-[calc(100dvh-1.5rem)] flex-col gap-2 sm:max-h-[calc(100dvh-2rem)] sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+            <div
+              className="pointer-events-auto shrink-0 rounded-xl bg-white/95 p-2 shadow-lg backdrop-blur-sm sm:min-w-0 sm:max-w-[440px] sm:flex-1 sm:p-4 lg:max-h-[calc(100dvh-2rem)] lg:overflow-y-auto"
+              data-testid="map-primary-controls"
+            >
+              <SearchPanel
+                searchRef={searchRef}
+                searchAddress={searchAddress}
+                searchLoading={searchLoading}
+                searchOpen={searchOpen}
+                searchResults={searchResults}
+                onAddressChange={setSearchAddress}
+                onSearch={handleAddressSearch}
+                onClear={clearSearch}
+                onSelectSchool={(school) => {
+                  selectSchool(school, 'zone_result');
+                  setSearchOpen(false);
+                }}
+              />
 
-          <FilterPanel
-            title={LABELS.map.title}
-            subtitle={LABELS.map.subtitle}
-            groups={SCHOOL_TYPE_GROUPS}
-            selectedType={selectedType}
-            onSelectType={selectSchoolType}
-          />
+              <FilterPanel
+                title={LABELS.map.title}
+                subtitle={LABELS.map.subtitle}
+                groups={SCHOOL_TYPE_GROUPS}
+                selectedType={selectedType}
+                onSelectType={selectSchoolType}
+              />
+            </div>
+
+            <div className="pointer-events-auto flex shrink-0 justify-end">
+              <MapStyleSwitcher layers={TILE_LAYERS} selectedTile={selectedTile} onSelectTile={selectTileLayer} />
+            </div>
+          </div>
         </div>
-
-        <MapStyleSwitcher layers={TILE_LAYERS} selectedTile={selectedTile} onSelectTile={selectTileLayer} />
 
         {loading && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/90 text-slate-700">
@@ -343,7 +352,14 @@ export default function SchoolMapClient() {
           </div>
         )}
 
-        <MapContainer center={NZ_CENTER} zoom={DEFAULT_ZOOM} scrollWheelZoom className="h-full w-full">
+        <MapContainer
+          center={NZ_CENTER}
+          zoom={DEFAULT_ZOOM}
+          zoomControl={false}
+          scrollWheelZoom
+          className="h-full w-full"
+        >
+          <ZoomControl position="bottomright" />
           <MapZoomHandler onZoomChange={setZoom} />
           {searchMarker && <MapController center={searchMarker} zoom={14} />}
           {selectedPosition && <MapController center={selectedPosition} zoom={14} />}
@@ -378,6 +394,7 @@ export default function SchoolMapClient() {
         selected={selected}
         boundaryFound={boundaryFound}
         ethnicityFields={ethnicityFields}
+        onClose={() => setSelectedSchool(null)}
         labels={{
           totalLocations: LABELS.map.totalLocations(filteredSchools.length),
           clickPrompt: LABELS.map.clickPrompt,
