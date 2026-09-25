@@ -55,3 +55,9 @@ html, body {
   background: transparent !important;
   border: none !important;
 }
+
+.leaflet-container .leaflet-control-zoom a {
+  width: 44px !important;
+  height: 44px !important;
+  line-height: 44px !important;
+}

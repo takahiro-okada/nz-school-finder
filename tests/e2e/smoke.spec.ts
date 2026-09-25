@@ -1,5 +1,25 @@
 import { expect, test } from '@playwright/test';
 
+const responsiveViewports = [
+  { width: 320, height: 720 },
+  { width: 390, height: 844 },
+  { width: 768, height: 900 },
+  { width: 1024, height: 768 },
+  { width: 1440, height: 900 },
+];
+
+function boxesOverlap(
+  first: { x: number; y: number; width: number; height: number },
+  second: { x: number; y: number; width: number; height: number }
+) {
+  return !(
+    first.x + first.width <= second.x ||
+    second.x + second.width <= first.x ||
+    first.y + first.height <= second.y ||
+    second.y + second.height <= first.y
+  );
+}
+
 test.describe('school finder smoke flow', () => {
   test('loads the map shell and core controls', async ({ page }) => {
     await page.goto('/');
@@ -81,4 +101,60 @@ test.describe('school finder smoke flow', () => {
     await page.goto('/?school=7');
     await expect(page.getByRole('heading', { name: 'Okaihau College' })).toBeVisible();
   });
+
+  for (const viewport of responsiveViewports) {
+    test(`keeps map controls usable without overlap at ${viewport.width}px`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await page.goto('/');
+
+      const primaryControls = page.getByTestId('map-primary-controls');
+      const styleControls = page.getByTestId('map-style-controls');
+      const zoomControls = page.locator('.leaflet-control-zoom');
+      const zoomInButton = page.getByRole('button', { name: 'Zoom in' });
+
+      await expect(primaryControls).toBeVisible();
+      await expect(styleControls).toBeVisible();
+      await expect(zoomControls).toBeVisible();
+
+      const [primaryBox, styleBox, zoomBox, zoomInBox] = await Promise.all([
+        primaryControls.boundingBox(),
+        styleControls.boundingBox(),
+        zoomControls.boundingBox(),
+        zoomInButton.boundingBox(),
+      ]);
+
+      expect(primaryBox).not.toBeNull();
+      expect(styleBox).not.toBeNull();
+      expect(zoomBox).not.toBeNull();
+      expect(zoomInBox).not.toBeNull();
+      expect(boxesOverlap(primaryBox!, styleBox!)).toBe(false);
+      expect(boxesOverlap(primaryBox!, zoomBox!)).toBe(false);
+      expect(boxesOverlap(styleBox!, zoomBox!)).toBe(false);
+      expect(zoomInBox!.width).toBeGreaterThanOrEqual(44);
+      expect(zoomInBox!.height).toBeGreaterThanOrEqual(44);
+
+      const pageWidth = await page.locator('body').evaluate((body) => body.scrollWidth);
+      expect(pageWidth).toBeLessThanOrEqual(viewport.width);
+    });
+  }
+
+  for (const viewport of [responsiveViewports[1], responsiveViewports[4]]) {
+    test(`keeps selected-school details dismissible at ${viewport.width}px`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await page.goto('/?school=7');
+
+      const detailsPanel = page.getByTestId('school-details-panel');
+      await expect(detailsPanel.getByRole('heading', { name: 'Okaihau College' })).toBeVisible();
+      await expect(detailsPanel.getByRole('button', { name: 'Close school details' })).toBeVisible();
+
+      const panelBox = await detailsPanel.boundingBox();
+      expect(panelBox).not.toBeNull();
+      if (viewport.width < 1024) {
+        expect(panelBox!.height).toBeLessThanOrEqual(viewport.height * 0.47);
+      }
+
+      await detailsPanel.getByRole('button', { name: 'Close school details' }).click();
+      await expect(detailsPanel.getByRole('heading', { name: 'Okaihau College' })).toBeHidden();
+    });
+  }
 });

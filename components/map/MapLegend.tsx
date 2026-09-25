@@ -2,7 +2,7 @@ import { SCHOOL_TYPE_GROUPS, TYPE_CONFIG } from '@/lib/schools/constants';
 
 export default function MapLegend() {
   return (
-    <div className="absolute bottom-3 left-3 z-[1000] hidden max-w-[calc(100vw-1.5rem)] rounded-lg bg-white/95 p-3 shadow-lg backdrop-blur-sm sm:bottom-6 sm:left-4 sm:block">
+    <div className="absolute bottom-4 left-4 z-[1000] hidden max-w-[calc(100vw-1.5rem)] rounded-xl bg-white/95 p-3 shadow-lg backdrop-blur-sm sm:block">
       <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">Legend</div>
       <div className="space-y-1">
         {SCHOOL_TYPE_GROUPS.slice(1).map((group) => {
