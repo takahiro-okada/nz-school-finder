@@ -42,3 +42,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Cloudflare build output and local secrets
+.open-next/
+.wrangler/
+.dev.vars*
+.env*.local
+
+# Generated from the tracked school snapshot during prebuild
+/public/data/school-zones/
+/public/data/school-zones.json
+/.vercel/

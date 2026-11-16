@@ -229,3 +229,12 @@ npm run build
 ## Notes
 
 This is an independent portfolio project and is not affiliated with the New Zealand Ministry of Education. Public school data and zone information should be verified against official sources before being used for enrolment decisions.
+
+
+## Cloudflare deployment
+
+The app runs on Cloudflare Workers through OpenNext. The tracked `wrangler.jsonc` defines its Worker, assets and any custom domains. Install dependencies with `npm ci`, then run `npm run build:cloudflare` and `npm run deploy:cloudflare`. GitHub pushes to `main` use the same commands through Cloudflare Builds.
+
+Configure environment values separately in Cloudflare Builds (build time) and Worker Secrets (runtime). Local `.env.production.local` and `.dev.vars` files are ignored. Use `wrangler secret bulk` with JSON on stdin to update runtime secrets. The configuration preserves existing runtime variables on deploy.
+
+`prebuild` generates static zone assets from the unchanged `data/school_zones_by_id.json` snapshot. The map loads the full snapshot only when searching an address; the zone endpoint reads individual static assets. Keep generated `public/data/school-zones*` files out of Git. This avoids including the 15 MB snapshot in the Worker JavaScript bundle.

@@ -92,7 +92,7 @@ export default function SchoolMapClient() {
       const coords = await geocode(trimmedAddress);
       if (coords) {
         const latLng = L.latLng(coords.lat, coords.lng);
-        const matches = findSchoolsInZone(coords.lat, coords.lng, schools);
+        const matches = await findSchoolsInZone(coords.lat, coords.lng, schools);
         setSearchMarker(latLng);
         setSearchResults(matches);
         setSearchStatus(matches.length > 0 ? 'success' : 'no-zone');
