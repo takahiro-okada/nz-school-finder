@@ -1,9 +1,21 @@
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { point } from '@turf/helpers';
-import zonesDataJson from '@/data/school_zones_by_id.json';
 import type { SchoolRecord, ZoneFeature } from './types';
 
-const zonesData = zonesDataJson as Record<string, ZoneFeature[]>;
+let zonesPromise: Promise<Record<string, ZoneFeature[]>> | undefined;
+
+async function loadZones() {
+  zonesPromise ??= fetch('/data/school-zones.json')
+    .then(async (response) => {
+      if (!response.ok) throw new Error('School zones fetch failed');
+      return response.json() as Promise<Record<string, ZoneFeature[]>>;
+    })
+    .catch((error) => {
+      zonesPromise = undefined;
+      throw error;
+    });
+  return zonesPromise;
+}
 
 export const getSchoolId = (school: SchoolRecord) =>
   String(school.School_Id ?? school.SchoolId ?? school.SchoolID ?? school.Org_Name ?? '');
@@ -77,5 +89,5 @@ export const findSchoolsInZoneWithZones = (
   return matchingSchools;
 };
 
-export const findSchoolsInZone = (lat: number, lng: number, schools: SchoolRecord[]) =>
-  findSchoolsInZoneWithZones(lat, lng, schools, zonesData);
+export const findSchoolsInZone = async (lat: number, lng: number, schools: SchoolRecord[]) =>
+  findSchoolsInZoneWithZones(lat, lng, schools, await loadZones());
