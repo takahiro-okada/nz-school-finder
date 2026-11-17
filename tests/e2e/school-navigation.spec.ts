@@ -23,6 +23,7 @@ test('directory browsing survives refresh, profile visits, and browser history',
   const directory = page.locator('#school-directory');
   const query = directory.getByRole('searchbox');
   await query.fill('Auckland');
+  await expect(page).toHaveURL(/q=Auckland/);
   await directory.getByRole('combobox', { name: 'Location', exact: true }).selectOption('Auckland');
   await directory.getByRole('combobox', { name: 'Type', exact: true }).selectOption('Primary');
   await directory.getByRole('combobox', { name: 'Sort', exact: true }).selectOption('name-asc');
