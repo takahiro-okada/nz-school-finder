@@ -34,7 +34,14 @@ export default function SchoolsDirectory({ schools, cityOptions, typeOptions }: 
   const directoryHref = getDirectoryHref({ ...state, city, type });
 
   const updateState = (changes: Partial<DirectoryState>, replace = false) => {
-    const href = getDirectoryHref({ ...state, city, type, ...changes });
+    // History changes can precede the next React render when filters change quickly.
+    const current = parseDirectoryState(new URLSearchParams(window.location.search));
+    const href = getDirectoryHref({
+      ...current,
+      city: cityOptions.includes(current.city) ? current.city : 'All',
+      type: typeOptions.includes(current.type) ? current.type : 'All',
+      ...changes,
+    });
     // Next's native history integration updates useSearchParams without refetching the catalog.
     if (replace) window.history.replaceState(null, '', href);
     else window.history.pushState(null, '', href);

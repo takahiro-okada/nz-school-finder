@@ -29,6 +29,7 @@ test('directory browsing survives refresh, profile visits, and browser history',
   await directory.getByRole('combobox', { name: 'Sort', exact: true }).selectOption('name-asc');
   await directory.getByRole('button', { name: 'Show more' }).click();
   await expect(directory.getByText(/Showing 120 of/)).toBeVisible();
+  await expect(page).toHaveURL(/q=Auckland/);
   const resultsUrl = page.url();
   await page.reload();
   await expect(query).toHaveValue('Auckland');
